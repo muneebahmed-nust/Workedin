@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import utils  
 
-
+#This is the app class which navigates between pages
 
 class App:
     def __init__(self, root):
