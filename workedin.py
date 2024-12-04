@@ -66,7 +66,56 @@ class App:
         heading=ctk.CTkLabel(frame,text="Job Submission",font=("Arial",24))
         heading.place(relx=0.5, y=20, anchor="center")
         
+        city_label =ctk.CTkLabel(frame, text="City",font=("Arial",16))
+        city_label.place(x=400,y=100,anchor="e")
+        city_box= ctk.CTkComboBox(frame, values= [
+    # Main Cities
+    "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad",
+    "Peshawar", "Quetta", "Multan",
+    
+    # Other Cities in Alphabetical Order
+    "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal",
+    "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", 
+    "Gujrat", "Hyderabad", "Jhang", "Jhelum", "Kasur", 
+    "Khuzdar", "Kotli", "Larkana", "Mardan", "Mingora",
+    "Mirpur Khas", "Nawabshah", "Okara", "Rahim Yar Khan", 
+    "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"
+    ])
+    
+        city_box.place(x=650,y=100,anchor="w")
+
+        job_type_label = ctk.CTkLabel(frame, text="Job Type",font=("Arial",16))
+        job_type_label.place(x=400,y=150,anchor="e")
+        job_type_box= ctk.CTkComboBox(frame, values=["Driver","Labour","Electrician","Plumber","Mason","Carpenter","Painter","Cleaner","Cook","Security Guard","Other"], command=self.on_job_type_change)
+        job_type_box.place(x=650,y=150,anchor="w")
+        
+        self.other_job_entry = ctk.CTkEntry(frame,placeholder_text="Please specify", width=200, height=30)
+        self.other_job_entry.place(x=650, y=200, anchor="w")
+        self.other_job_entry.configure(state="disabled")
+        
+        user_name_label = ctk.CTkLabel(frame, text="User Name",font=("Arial",16))
+        user_name_label.place(x=400,y=250,anchor="e")
+        user_name_entry = ctk.CTkEntry(frame,placeholder_text="e.g Aslam Ahmed", width=200, height=30)
+        user_name_entry.place(x=650, y=250, anchor="w")
+
+        job_description_label = ctk.CTkLabel(frame, text="Job Description",font=("Arial",16))
+        job_description_label.place(x=400,y=300,anchor="ne")
+        job_description_entry = ctk.CTkTextbox(frame, width=250, height=100)
+        job_description_entry.insert("0.0", "")  # Add placeholder text
+        job_description_entry.place(x=650, y=300, anchor="nw")
+
+        submit_button=ctk.CTkButton(frame,text="Submit",command=lambda:self.show_page(self.job_submission_page))
         return frame
+
+    def on_job_type_change(self, selected_job_type):
+        if selected_job_type == "Other":
+            # Show the entry
+            self.other_job_entry.configure(state="normal")
+        else:
+            self.other_job_entry.configure(state="disabled")
+            
+
+
 
     def caller(self):
         print("hello\n")
@@ -75,6 +124,9 @@ class App:
         print("Value" + str(widget.winfo_width()))
         print("anove")
         return self.x_axis-(widget.winfo_width()/2)
+    
+    
+
 
 def main():
     ctk.set_appearance_mode("dark")
