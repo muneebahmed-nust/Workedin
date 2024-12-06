@@ -1,3 +1,5 @@
+import re
+
 def is_aplph_only(string):
     for c in string:
         if not ('a'<=c<='z' or 'A'<=c<='Z' or ' ' in c):
