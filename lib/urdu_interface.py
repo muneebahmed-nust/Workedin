@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import messagebox 
 import utils  
-from backend_functions import *
+from lib.backend_functions import *
 
 class UrduInterface:
     def __init__(self, app):

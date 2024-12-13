@@ -1,7 +1,10 @@
 import customtkinter as ctk
 from tkinter import messagebox 
 import utils  
-from backend_functions import *
+from lib.backend_functions import *
+from lib.authentication_firebase import *
+from firebase_admin import auth
+
 
 class EnglishInterface:
     def __init__(self, app):
@@ -9,6 +12,7 @@ class EnglishInterface:
         self.root = app.root
         self.label_data_font = app.label_data_font
         self.heading_label_font = app.heading_label_font  # Add this line
+        self.db=app.db
 
     def signup_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
@@ -28,51 +32,59 @@ class EnglishInterface:
         
         name_label = ctk.CTkLabel(frame, text="Full Name:", font=self.label_data_font)
         name_label.place(relx=0.4, rely=0.2, anchor="e")
-        name_entry_box = ctk.CTkEntry(frame, width=200, height=30, placeholder_text="e.g Aslam Ahmed")
-        name_entry_box.place(relx=0.6, rely=0.2, anchor="w")
+        self.name_entry_box = ctk.CTkEntry(frame, width=200, height=30, placeholder_text="e.g Aslam Ahmed")
+        self.name_entry_box.place(relx=0.6, rely=0.2, anchor="w")
 
-        age_label = ctk.CTkLabel(frame, text="Age:", font=self.label_data_font)
-        age_label.place(relx=0.4, rely=0.3, anchor="e")
-        age_entry_box = ctk.CTkEntry(frame, width=200, height=30)
-        age_entry_box.place(relx=0.6, rely=0.3, anchor="w")
+        dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
+        dob_label.place(relx=0.4, rely=0.3, anchor="e")
+        self.dob_entry_box = ctk.CTkEntry(frame, width=200, height=30)
+        self.dob_entry_box.place(relx=0.6, rely=0.3, anchor="w")
 
-        user_name_label = ctk.CTkLabel(frame, text="User Name:", font=self.label_data_font)
-        user_name_label.place(relx=0.4, rely=0.4, anchor="e")
-        user_name_entry = ctk.CTkEntry(frame, width=200, height=30)
-        user_name_entry.place(relx=0.6, rely=0.4, anchor="w")
+        email_label = ctk.CTkLabel(frame, text="Email:", font=self.label_data_font)
+        email_label.place(relx=0.4, rely=0.4, anchor="e")
+        self.email_entry = ctk.CTkEntry(frame, width=200, height=30)
+        self.email_entry.place(relx=0.6, rely=0.4, anchor="w")
         
         password_label = ctk.CTkLabel(frame, text="Password:", font=self.label_data_font)
         password_label.place(relx=0.4, rely=0.5, anchor="e")
-        password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        password_entry.place(relx=0.6, rely=0.5, anchor="w")
+        self.password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
+        self.password_entry.place(relx=0.6, rely=0.5, anchor="w")
         
         confirm_password_label = ctk.CTkLabel(frame, text="Confirm Password:", font=self.label_data_font)
         confirm_password_label.place(relx=0.4, rely=0.6, anchor="e")
-        confirm_password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        confirm_password_entry.place(relx=0.6, rely=0.6, anchor="w")
+        self.confirm_password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
+        self.confirm_password_entry.place(relx=0.6, rely=0.6, anchor="w")
 
-        city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
-        city_label.place(relx=0.4, rely=0.7, anchor="e")
-        city_box = ctk.CTkComboBox(frame, values=[
-            # Main Cities
-            "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad",
-            "Peshawar", "Quetta", "Multan",
-            
-            # Other Cities in Alphabetical Order
-            "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal",
-            "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", 
-            "Gujrat", "Hyderabad", "Jhang", "Jhelum", "Kasur", 
-            "Khuzdar", "Kotli", "Larkana", "Mardan", "Mingora",
-            "Mirpur Khas", "Nawabshah", "Okara", "Rahim Yar Khan", 
-            "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"
-        ])
-        city_box.place(relx=0.6, rely=0.7, anchor="w")
+        user_type_label = ctk.CTkLabel(frame, text="User Type:", font=self.label_data_font)
+        user_type_label.place(relx=0.4, rely=0.7, anchor="e")
+        self.user_type_box = ctk.CTkComboBox(frame, values=["Employer", "Labour"])
+        self.user_type_box.place(relx=0.6, rely=0.7, anchor="w")
 
         signup_button = ctk.CTkButton(frame, text="Sign Up", width=120, height=32, 
-                                    command=lambda: self.app.show_page(self.labour_data_entry_page))
+                                    command=lambda: self.create_user())
         signup_button.place(relx=0.5, rely=0.8, anchor="center")
 
         return frame
+
+    def create_user(self):
+        email=self.email_entry.get()
+        password=self.password_entry.get()
+        user_type=self.user_type_box.get()
+        dob=self.dob_entry_box.get()
+        name=self.name_entry_box.get()
+
+        try:
+            user=auth.create_user(email=email,password=password)
+            print(user)
+            print("Sucees user created")
+        except:
+            pass
+        
+        
+        self.db.collection(user_type).document(email).set({
+        "name": name,
+        "dob": dob,        
+        })
 
     def labour_data_entry_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
@@ -104,7 +116,22 @@ class EnglishInterface:
         experience_label.place(relx=0.4, rely=0.57, anchor="e")
         experience_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 10")
         experience_entry_box.place(relx=0.6, rely=0.57, anchor="w")
-
+        city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
+        city_label.place(relx=0.4, rely=0.7, anchor="e")
+        self.city_box = ctk.CTkComboBox(frame, values=[
+            # Main Cities
+            "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad",
+            "Peshawar", "Quetta", "Multan",
+            
+            # Other Cities in Alphabetical Order
+            "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal",
+            "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", 
+            "Gujrat", "Hyderabad", "Jhang", "Jhelum", "Kasur", 
+            "Khuzdar", "Kotli", "Larkana", "Mardan", "Mingora",
+            "Mirpur Khas", "Nawabshah", "Okara", "Rahim Yar Khan", 
+            "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"
+        ])
+        self.city_box.place(relx=0.6, rely=0.7, anchor="w")
         submit_button=ctk.CTkButton(frame,text="Submit",command=lambda:self.app.show_page(self.job_submission_page))
         submit_button.place(relx=0.4, rely=0.75, anchor="center")
        

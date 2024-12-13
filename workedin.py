@@ -1,9 +1,11 @@
 import customtkinter as ctk
 from tkinter import messagebox 
 import utils  
-from backend_functions import *
-from english_interface import *
-from urdu_interface import *
+from lib.backend_functions import *
+from lib.english_interface import *
+from lib.urdu_interface import *
+from lib.authentication_firebase import *
+from firebase_admin import auth
 
 #This is the app class which navigates between pages
 class App:
@@ -15,6 +17,7 @@ class App:
         self.current_frame = self.select_language_page()
         self.label_data_font=("Arial", 16)
         self.heading_label_font=("Arial",24)
+        self.db=firebase_database
 
     def show_page(self, page_func):
         # Destroy current frame if it exists
@@ -47,16 +50,13 @@ class App:
 
 
 
-
-
-
 def main():
     ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("green")
 
     root = ctk.CTk()
     root.state("zoomed")
-    print(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
+ 
     root.geometry("1000x600")
     root.title("Workedin")
     app = App(root)
