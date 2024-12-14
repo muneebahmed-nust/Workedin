@@ -116,7 +116,49 @@ class EnglishInterface:
         })
 
         self.app.show_page(self.labour_data_entry_page)
+        
+    def login_screen(self):
+        frame = ctk.CTkFrame(self.root, width=1000, height=600)
+        frame.pack(fill="both", expand=True)
+        # Create the back button
+        back_button = ctk.CTkButton(frame, text=self.get_text("Back"), command=self.go_back)
+        back_button.pack(pady=10, anchor="w", padx=10)
 
+        # Label for sign-in screen
+        self.title_label = ctk.CTkLabel(frame, text=self.get_text("Sign In"), font=("Arial", 24))
+        self.title_label.pack(pady=20)
+
+        # Dropdown for selecting user type (Tradesperson or Employer)
+        self.user_type_dropdown = ctk.CTkOptionMenu(frame, values=[self.get_text("Tradesperson"), self.get_text("Employer")])
+        self.user_type_dropdown.pack(pady=10)
+
+        # Language selection (English or Urdu)
+        language_label = ctk.CTkLabel(frame, text=self.get_text("Select Language"), font=("Arial", 16))
+        language_label.pack(pady=10)
+
+        self.language_dropdown = ctk.CTkOptionMenu(frame, values=[self.get_text("English"), self.get_text("Urdu")], command=self.change_language)
+        self.language_dropdown.pack(pady=10)
+
+        # Label and Entry for username
+        self.username_label = ctk.CTkLabel(frame, text=self.get_text("Username"), font=("Arial", 16))
+        self.username_label.pack(pady=5)
+
+        self.username_entry = ctk.CTkEntry(frame, placeholder_text=self.get_text("Enter your username"))
+        self.username_entry.pack(pady=5)
+
+        # Label and Entry for password
+        self.password_label = ctk.CTkLabel(frame, text=self.get_text("Password"), font=("Arial", 16))
+        self.password_label.pack(pady=5)
+
+        self.password_entry = ctk.CTkEntry(frame, placeholder_text=self.get_text("Enter your password"), show="*")
+        self.password_entry.pack(pady=5)
+
+        # Sign-in button
+        signin_button = ctk.CTkButton(frame, text=self.get_text("Sign In"), command=self.sign_in)
+        signin_button.pack(pady=20)
+
+        return frame
+    
     def labour_data_entry_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         
