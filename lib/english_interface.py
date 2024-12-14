@@ -37,8 +37,33 @@ class EnglishInterface:
 
         dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
         dob_label.place(relx=0.4, rely=0.3, anchor="e")
-        self.dob_entry_box = ctk.CTkEntry(frame, width=200, height=30)
-        self.dob_entry_box.place(relx=0.6, rely=0.3, anchor="w")
+        
+        # Create date picker frame
+        date_frame = ctk.CTkFrame(frame)
+        date_frame.place(relx=0.6, rely=0.3, anchor="w")
+        
+        # Create calendar button
+        self.dob_entry_box = ctk.CTkEntry(date_frame, width=170, height=30)
+        self.dob_entry_box.pack(side="left", padx=(0,5))
+        
+        def open_calendar():
+            # Create calendar popup
+            from tkcalendar import Calendar
+            top = ctk.CTkToplevel(frame)
+            top.geometry("300x250")
+            cal = Calendar(top, selectmode='day', date_pattern='dd/mm/yyyy')
+            cal.pack(pady=10)
+            
+            def get_date():
+                self.dob_entry_box.delete(0, "end")
+                self.dob_entry_box.insert(0, cal.get_date())
+                top.destroy()
+                
+            select_btn = ctk.CTkButton(top, text="Select", command=get_date)
+            select_btn.pack()
+            
+        calendar_btn = ctk.CTkButton(date_frame, text="📅", width=25, height=30, command=open_calendar)
+        calendar_btn.pack(side="left")
 
         email_label = ctk.CTkLabel(frame, text="Email:", font=self.label_data_font)
         email_label.place(relx=0.4, rely=0.4, anchor="e")
@@ -66,14 +91,18 @@ class EnglishInterface:
 
         return frame
 
-    def create_user(self):
+    async def create_user(self):
         email=self.email_entry.get()
         password=self.password_entry.get()
         user_type=self.user_type_box.get()
         dob=self.dob_entry_box.get()
         name=self.name_entry_box.get()
-
-        try:
+        if (not_letter(name)):
+            messagebox.showerror("Error","Name must contain only letters")
+            return
+        
+        
+        try :
             user=auth.create_user(email=email,password=password)
             print(user)
             print("Sucees user created")
@@ -86,6 +115,8 @@ class EnglishInterface:
         "dob": dob,        
         })
 
+        self.app.show_page(self.labour_data_entry_page)
+
     def labour_data_entry_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         
@@ -96,26 +127,27 @@ class EnglishInterface:
 
         cnic_label=ctk.CTkLabel(frame,text="CNIC:",font=self.label_data_font)
         cnic_label.place(relx=0.4, rely=0.15, anchor="e")
-        cnic_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 42101-1234567-8")
-        cnic_entry_box.place(relx=0.6, rely=0.15, anchor="w")
+        self.cnic_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 42101-1234567-8")
+        self.cnic_entry_box.place(relx=0.6, rely=0.15, anchor="w")
 
         profession_label=ctk.CTkLabel(frame,text="Profession:",font=self.label_data_font)
         profession_label.place(relx=0.4, rely=0.29, anchor="e")
-        profession_box = ctk.CTkComboBox(frame, values=[
+        self.profession_box = ctk.CTkComboBox(frame, values=[
             "Driver", "Labour", "Electrician", "Plumber", "Mason",
             "Carpenter", "Painter", "Cleaner", "Cook", "Security Guard", "Other"
         ])
-        profession_box.place(relx=0.6, rely=0.29, anchor="w")
+        self.profession_box.place(relx=0.6, rely=0.29, anchor="w")
 
         phone_label=ctk.CTkLabel(frame,text="Phone:",font=self.label_data_font)
         phone_label.place(relx=0.4, rely=0.43, anchor="e")
-        phone_entry_box=ctk.CTkEntry(frame,width=200,height=30)
-        phone_entry_box.place(relx=0.6, rely=0.43, anchor="w")
+        self.phone_entry_box=ctk.CTkEntry(frame,width=200,height=30)
+        self.phone_entry_box.place(relx=0.6, rely=0.43, anchor="w")
 
         experience_label=ctk.CTkLabel(frame,text="Number of years of experience:",font=self.label_data_font)
         experience_label.place(relx=0.4, rely=0.57, anchor="e")
-        experience_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 10")
-        experience_entry_box.place(relx=0.6, rely=0.57, anchor="w")
+        self.experience_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 10")
+        self.experience_entry_box.place(relx=0.6, rely=0.57, anchor="w")
+       
         city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
         city_label.place(relx=0.4, rely=0.7, anchor="e")
         self.city_box = ctk.CTkComboBox(frame, values=[
@@ -132,11 +164,14 @@ class EnglishInterface:
             "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"
         ])
         self.city_box.place(relx=0.6, rely=0.7, anchor="w")
+       
         submit_button=ctk.CTkButton(frame,text="Submit",command=lambda:self.app.show_page(self.job_submission_page))
         submit_button.place(relx=0.4, rely=0.75, anchor="center")
        
         return frame
-
+    
+    async def labour_database_entry(self):
+        cnic=self.cnic
     def job_submission_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)

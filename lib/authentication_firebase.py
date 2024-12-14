@@ -7,5 +7,9 @@ firebase_admin.initialize_app(cred)
 
 firebase_database=firebase_admin.firestore.client()
 
-
+firebase_database.collection("users1").document("test").update(
+    {
+        "user_type":firestore.DELETE_FIELD
+    }
+)
 

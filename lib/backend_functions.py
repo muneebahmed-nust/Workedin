@@ -1,10 +1,13 @@
 import re
 
-def is_aplph_only(string):
+def not_letter(string):
     for c in string:
         if not ('a'<=c<='z' or 'A'<=c<='Z' or ' ' in c):
-            return False
-    return True
+            return True
+    return False
+
+def not_numeric(string):
+    return not(is_number_only(string))
 
 def is_number_only(string):
     for n in string:
@@ -12,4 +15,9 @@ def is_number_only(string):
             return False
     return True
 
-
+def dob_checker(dob):
+    num=dob.split("/")
+    for n in num:
+        if not_numeric(n):
+            return False
+    return True
