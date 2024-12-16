@@ -17,7 +17,10 @@ class EnglishInterface:
         self.heading_label_font = app.heading_label_font  # Add this line
         self.db=app.db
         self.current_user=None
-        
+
+########################################################################################################
+#########################################################################################################        
+   
     def signup_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -115,7 +118,8 @@ class EnglishInterface:
                 await self.handle_signup(email,password,user_type,name)
                 self.app.show_page(self.labour_data_entry_page)
 
-        
+    #####################################################################################################
+    #####################################################################################################    
 
     def login_screen(self):
         # Create a frame for the login screen
@@ -174,9 +178,10 @@ class EnglishInterface:
                 self.app.show_page(self.job_submission_page)
         else:
             messagebox.showerror("Login Failed", "Invalid username or password.")
-      
-        
-   
+         
+    ##########################################################################################################
+    ##########################################################################################################
+       
     def labour_data_entry_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         
@@ -277,7 +282,8 @@ class EnglishInterface:
         else:
 
             self.labour_database_entry(cnic,profession,phone,experience,dob,city)
-
+    #####################################################################################################################
+    ###############################################################################################################################
     def job_submission_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -324,6 +330,9 @@ class EnglishInterface:
         else:
             self.other_job_entry.delete(0, "end")
             self.other_job_entry.configure(state="disabled")
+
+####################################################################################################
+####################################################################################################################
    
     def view_jobs(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
@@ -420,13 +429,13 @@ class EnglishInterface:
      frame = ctk.CTkFrame(self.root, width=1000, height=600)
      frame.place(relwidth=1, relheight=1)
     # Check if all fields are filled before navigating
-     if (self.cnic_entry_box.get() and self.profession_box.get() and 
-        self.phone_entry_box.get() and self.experience_entry_box.get() and 
-        self.city_box.get()):
-        self.create_skill_selection_screen()  # Transition to skill selection page
-     else:
-        error_label = ctk.CTkLabel(frame, text="Please fill in all fields", text_color="red")
-        error_label.place(relx=0.5, rely=0.8, anchor="center")     # If data is invalid, show an error message
+    #  if (self.cnic_entry_box.get() and self.profession_box.get() and 
+    #     self.phone_entry_box.get() and self.experience_entry_box.get() and 
+    #     self.city_box.get()):
+    #     self.create_skill_selection_screen()  # Transition to skill selection page
+    #  else:
+    #     error_label = ctk.CTkLabel(frame, text="Please fill in all fields", text_color="red")
+    #     error_label.place(relx=0.5, rely=0.8, anchor="center")     # If data is invalid, show an error message
 
 
     def create_skill_selection_screen(self):
