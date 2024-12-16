@@ -5,6 +5,7 @@ from lib.backend_functions import *
 from lib.authentication_firebase import *
 from firebase_admin import auth
 import asyncio
+from tkcalendar import Calendar
 
 class EnglishInterface:
     def __init__(self, app):
@@ -35,62 +36,34 @@ class EnglishInterface:
         self.name_entry_box = ctk.CTkEntry(frame, width=200, height=30, placeholder_text="e.g Aslam Ahmed")
         self.name_entry_box.place(relx=0.6, rely=0.2, anchor="w")
 
-        dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
-        dob_label.place(relx=0.4, rely=0.3, anchor="e")
         
-        # Create date picker frame
-        date_frame = ctk.CTkFrame(frame)
-        date_frame.place(relx=0.6, rely=0.3, anchor="w")
-        
-        # Create calendar button
-        self.dob_entry_box = ctk.CTkEntry(date_frame, width=170, height=30)
-        self.dob_entry_box.pack(side="left", padx=(0,5))
-        
-        def open_calendar():
-            # Create calendar popup
-            from tkcalendar import Calendar
-            top = ctk.CTkToplevel(frame)
-            top.geometry("300x250")
-            cal = Calendar(top, selectmode='day', date_pattern='dd/mm/yyyy')
-            cal.pack(pady=10)
-            
-            def get_date():
-                self.dob_entry_box.delete(0, "end")
-                self.dob_entry_box.insert(0, cal.get_date())
-                top.destroy()
-                
-            select_btn = ctk.CTkButton(top, text="Select", command=get_date)
-            select_btn.pack()
-            
-        calendar_btn = ctk.CTkButton(date_frame, text="📅", width=25, height=30, command=open_calendar)
-        calendar_btn.pack(side="left")
 
         email_label = ctk.CTkLabel(frame, text="Email:", font=self.label_data_font)
-        email_label.place(relx=0.4, rely=0.4, anchor="e")
+        email_label.place(relx=0.4, rely=0.3, anchor="e")
         self.email_entry = ctk.CTkEntry(frame, width=200, height=30)
-        self.email_entry.place(relx=0.6, rely=0.4, anchor="w")
+        self.email_entry.place(relx=0.6, rely=0.3, anchor="w")
         
         password_label = ctk.CTkLabel(frame, text="Password:", font=self.label_data_font)
-        password_label.place(relx=0.4, rely=0.5, anchor="e")
+        password_label.place(relx=0.4, rely=0.4, anchor="e")
         self.password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        self.password_entry.place(relx=0.6, rely=0.5, anchor="w")
+        self.password_entry.place(relx=0.6, rely=0.4, anchor="w")
         
         confirm_password_label = ctk.CTkLabel(frame, text="Confirm Password:", font=self.label_data_font)
-        confirm_password_label.place(relx=0.4, rely=0.6, anchor="e")
+        confirm_password_label.place(relx=0.4, rely=0.5, anchor="e")
         self.confirm_password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        self.confirm_password_entry.place(relx=0.6, rely=0.6, anchor="w")
+        self.confirm_password_entry.place(relx=0.6, rely=0.5, anchor="w")
 
         user_type_label = ctk.CTkLabel(frame, text="User Type:", font=self.label_data_font)
-        user_type_label.place(relx=0.4, rely=0.7, anchor="e")
+        user_type_label.place(relx=0.4, rely=0.6, anchor="e")
         self.user_type_box = ctk.CTkComboBox(frame, values=["Employer", "Labour"])
-        self.user_type_box.place(relx=0.6, rely=0.7, anchor="w")
+        self.user_type_box.place(relx=0.6, rely=0.6, anchor="w")
 
         signup_button = ctk.CTkButton(frame, text="Sign Up", width=120, height=32, 
                                     command=lambda: self.create_user())
         signup_button.place(relx=0.5, rely=0.8, anchor="center")
 
         return frame
-    async def handle_signup(self, email, password, user_type, dob, name):
+    async def handle_signup(self, email, password, user_type, name):
         # Run the asynchronous create_user method
         try :
             await auth.create_user(email=email,password=password)
@@ -98,8 +71,7 @@ class EnglishInterface:
         except:
             pass 
         await self.db.collection(user_type).document(email).set({
-        "name": name,
-        "dob": dob,        
+        "name": name,        
         })
         
     def create_user(self):
@@ -107,10 +79,9 @@ class EnglishInterface:
         password=self.password_entry.get()
         confirm_password=self.confirm_password_entry.get()
         user_type=self.user_type_box.get()
-        dob=self.dob_entry_box.get()
         name=self.name_entry_box.get()
 
-        if(is_empty(email) or is_empty(password) or is_empty(confirm_password) or is_empty( user_type) or is_empty(dob) or is_empty(name)):
+        if(is_empty(email) or is_empty(password) or is_empty(confirm_password) or is_empty( user_type)  or is_empty(name)):
             messagebox.showerror("Input Error", "Please fill out all fields")
             return
         else:    
@@ -124,7 +95,7 @@ class EnglishInterface:
                 messagebox.showerror("Error","Invalid email")
                 return
             else:
-                self.handle_signup(email,password,user_type,dob,name)
+                self.handle_signup(email,password,user_type,name)
 
         self.app.show_page(self.labour_data_entry_page)
         
@@ -184,12 +155,12 @@ class EnglishInterface:
         self.cnic_entry_box.place(relx=0.6, rely=0.15, anchor="w")
 
         profession_label=ctk.CTkLabel(frame,text="Profession:",font=self.label_data_font)
-        profession_label.place(relx=0.4, rely=0.29, anchor="e")
+        profession_label.place(relx=0.4, rely=0.20, anchor="e")
         self.profession_box = ctk.CTkComboBox(frame, values=[
             "Driver", "Labour", "Electrician", "Plumber", "Mason",
             "Carpenter", "Painter", "Cleaner", "Cook", "Security Guard", "Other"
         ])
-        self.profession_box.place(relx=0.6, rely=0.29, anchor="w")
+        self.profession_box.place(relx=0.6, rely=0.20, anchor="w")
 
         phone_label=ctk.CTkLabel(frame,text="Phone:",font=self.label_data_font)
         phone_label.place(relx=0.4, rely=0.43, anchor="e")
@@ -200,14 +171,48 @@ class EnglishInterface:
         experience_label.place(relx=0.4, rely=0.57, anchor="e")
         self.experience_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 10")
         self.experience_entry_box.place(relx=0.6, rely=0.57, anchor="w")
-       
+        dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
+        dob_label.place(relx=0.4, rely=0.3, anchor="e")
+        
+        # Create date frame
+        date_frame = ctk.CTkFrame(frame)
+        date_frame.place(relx=0.6, rely=0.3, anchor="w")
+
+        # Create entry and button
+        self.dob_entry_box = ctk.CTkEntry(date_frame, width=170, height=30)
+        self.dob_entry_box.pack(side="left", padx=(0,5))
+        
+        # Calendar frame will be created/destroyed on toggle
+        self.calendar_frame = None
+        
+        def get_date():
+            self.dob_entry_box.delete(0, "end")
+            self.dob_entry_box.insert(0, self.cal.get_date())
+            if self.calendar_frame:
+                self.calendar_frame.destroy()
+                self.calendar_frame = None
+            
+        def toggle_calendar():
+            if self.calendar_frame:
+                self.calendar_frame.destroy()
+                self.calendar_frame = None
+            else:
+                self.calendar_frame = ctk.CTkFrame(frame)
+                self.calendar_frame.place(relx=0.75, rely=0.3, anchor="w")
+                self.cal = Calendar(self.calendar_frame, selectmode='day', date_pattern='dd/mm/yyyy')
+                self.cal.pack()
+                select_btn = ctk.CTkButton(self.calendar_frame, text="Select", command=get_date)
+                select_btn.pack()
+
+        calendar_btn = ctk.CTkButton(date_frame, text="📅", width=25, height=30, command=toggle_calendar)
+        calendar_btn.pack(side="left")
+
         city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
         city_label.place(relx=0.4, rely=0.7, anchor="e")
         self.city_box = ctk.CTkComboBox(frame, values=[
             # Main Cities
             "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Faisalabad",
             "Peshawar", "Quetta", "Multan",
-            
             # Other Cities in Alphabetical Order
             "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal",
             "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", 
@@ -222,7 +227,6 @@ class EnglishInterface:
         submit_button.place(relx=0.4, rely=0.75, anchor="center")
        
         return frame
-    
     async def labour_database_entry(self):
         cnic=self.cnic
     def job_submission_page(self):
