@@ -42,7 +42,7 @@ class App:
 
     def show_english(self):
         self.english = EnglishInterface(self)
-        self.show_page(self.english.login_screen)
+        self.show_page(self.english.signup_page)
 
     def show_urdu(self):
         self.urdu = UrduInterface(self)

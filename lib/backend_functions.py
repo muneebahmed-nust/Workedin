@@ -21,3 +21,9 @@ def dob_checker(dob):
         if not_numeric(n):
             return False
     return True
+
+def is_empty(string):
+    return string == ""
+
+def is_invalid_email(email):
+    return not(re.match(r"[^@]+@[^@]+\.[^@]+", email))

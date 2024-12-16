@@ -4,7 +4,7 @@ import utils
 from lib.backend_functions import *
 from lib.authentication_firebase import *
 from firebase_admin import auth
-
+import asyncio
 
 class EnglishInterface:
     def __init__(self, app):
@@ -90,30 +90,41 @@ class EnglishInterface:
         signup_button.place(relx=0.5, rely=0.8, anchor="center")
 
         return frame
-
-    async def create_user(self):
-        email=self.email_entry.get()
-        password=self.password_entry.get()
-        user_type=self.user_type_box.get()
-        dob=self.dob_entry_box.get()
-        name=self.name_entry_box.get()
-        if (not_letter(name)):
-            messagebox.showerror("Error","Name must contain only letters")
-            return
-        
-        
+    async def handle_signup(self, email, password, user_type, dob, name):
+        # Run the asynchronous create_user method
         try :
-            user=auth.create_user(email=email,password=password)
-            print(user)
+            await auth.create_user(email=email,password=password)
             print("Sucees user created")
         except:
-            pass
-        
-        
-        self.db.collection(user_type).document(email).set({
+            pass 
+        await self.db.collection(user_type).document(email).set({
         "name": name,
         "dob": dob,        
         })
+        
+    def create_user(self):
+        email=self.email_entry.get()
+        password=self.password_entry.get()
+        confirm_password=self.confirm_password_entry.get()
+        user_type=self.user_type_box.get()
+        dob=self.dob_entry_box.get()
+        name=self.name_entry_box.get()
+
+        if(is_empty(email) or is_empty(password) or is_empty(confirm_password) or is_empty( user_type) or is_empty(dob) or is_empty(name)):
+            messagebox.showerror("Input Error", "Please fill out all fields")
+            return
+        else:    
+            if (not_letter(name)):
+                messagebox.showerror("Error","Name must contain only letters")
+                return
+            if (password!=confirm_password):
+                messagebox.showerror("Error","Password and confirm password do not match")
+                return
+            if(is_invalid_email(email)):
+                messagebox.showerror("Error","Invalid email")
+                return
+            else:
+                self.handle_signup(email,password,user_type,dob,name)
 
         self.app.show_page(self.labour_data_entry_page)
         
