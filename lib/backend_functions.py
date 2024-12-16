@@ -27,3 +27,10 @@ def is_empty(string):
 
 def is_invalid_email(email):
     return not(re.match(r"[^@]+@[^@]+\.[^@]+", email))
+
+def is_invalid_phone(phone):
+    return not(re.match(r"^\d{11}$", phone))
+
+def is_invalid_cnic(cnic):
+    return not(re.match(r"^\d{13}$", cnic))
+

@@ -1,1 +1,1 @@
-.set({"name":"test","dob":"test","email":"test@test.com","user_type":"test"})
+password

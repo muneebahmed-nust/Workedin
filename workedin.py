@@ -42,7 +42,7 @@ class App:
 
     def show_english(self):
         self.english = EnglishInterface(self)
-        self.show_page(self.english.signup_page)
+        self.show_page(self.english.login_screen)
 
     def show_urdu(self):
         self.urdu = UrduInterface(self)
@@ -56,8 +56,9 @@ def main():
 
     root = ctk.CTk()
     root.state("zoomed")
- 
-    root.geometry("1000x600")
+    height=root.winfo_screenheight()
+    width=root.winfo_screenwidth()
+    root.geometry(f"{width}x{height}")
     root.title("Workedin")
     app = App(root)
     
