@@ -17,6 +17,7 @@ class EnglishInterface:
         self.heading_label_font = app.heading_label_font  # Add this line
         self.db=app.db
         self.current_user=None
+        self.current_user_type=None
 
 ########################################################################################################
 #########################################################################################################        
@@ -172,6 +173,7 @@ class EnglishInterface:
         print(pass_checker)
         if password==pass_checker["password"]:
             self.current_user=username
+            self.current_user_type=user_type
             if(user_type=="Tradesperson"):
                 self.app.show_page(self.labour_data_entry_page)
             else:
@@ -192,7 +194,7 @@ class EnglishInterface:
 
         cnic_label=ctk.CTkLabel(frame,text="CNIC:",font=self.label_data_font)
         cnic_label.place(relx=0.4, rely=0.15, anchor="e")
-        self.cnic_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 42101-1234567-8")
+        self.cnic_entry_box=ctk.CTkEntry(frame,width=200,height=30,placeholder_text="e.g 4210112345678")
         self.cnic_entry_box.place(relx=0.6, rely=0.15, anchor="w")
 
         profession_label=ctk.CTkLabel(frame,text="Profession:",font=self.label_data_font)
@@ -251,22 +253,24 @@ class EnglishInterface:
         self.city_box = ctk.CTkComboBox(frame, values=cities)
         self.city_box.place(relx=0.6, rely=0.7, anchor="w")
        
-        submit_button=ctk.CTkButton(frame,text="Submit",command=lambda:self.app.show_page(self.job_submission_page))
+        submit_button=ctk.CTkButton(frame,text="Submit",command=self.labour_entry)
         submit_button.place(relx=0.4, rely=0.75, anchor="center")
        
         return frame
     
-    async def labour_database_entry(self,cnic,profession,phone,experience,dob,city):
-        await self.db.collection("labour").document(self.current_user).set({
-            "profession": profession,
-            "phone": phone,
-            "experience": experience,
-            "dob": dob,
-            "city": city,
-            "cnic":cnic,
-            
-        })
-        print(self.current_user)
+    def labour_database_entry(self,cnic,profession,phone,experience,dob,city):
+        dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        print(dict)
+        print(type(dict))
+        dict['profession']= profession
+        dict["phone"]= phone
+        dict["experience"]= experience
+        dict["dob"]= dob
+        dict["city"]= city
+        dict["cnic"]=cnic
+        self.db.collection(self.current_user_type).document(self.current_user).set(dict)
+        print(dict)
+
 
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
@@ -280,8 +284,14 @@ class EnglishInterface:
             messagebox.showerror("Error","Please fill out all fields")
             return
         else:
-
+            if(is_invalid_cnic(cnic)):
+                messagebox.showerror("Input Error","Please enter a valid cnic number")
+                return
+            if (is_invalid_phone(phone)):
+                messagebox.showerror("Input Error","Please enter a valid phone number")
+                return
             self.labour_database_entry(cnic,profession,phone,experience,dob,city)
+            self.app.show_page(self.create_labor_main_screen)
     #####################################################################################################################
     ###############################################################################################################################
     def job_submission_page(self):

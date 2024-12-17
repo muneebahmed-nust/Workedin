@@ -8,4 +8,7 @@ firebase_admin.initialize_app(cred)
 
 firebase_database=firebase_admin.firestore.client()
 
+# dict=firebase_database.collection("user").document("user").get().to_dict()
+# dict['new']=14523
 
+# firebase_database.collection("user").document("user").set(dict)
