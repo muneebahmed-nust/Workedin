@@ -9,7 +9,7 @@ from firebase_admin import auth
 
 #This is the app class which navigates between pages
 class App:
-
+ 
     def __init__(self, root):
         self.root = root
         self.x_axis=self.root.winfo_screenwidth()/2
@@ -42,7 +42,7 @@ class App:
 
     def show_english(self):
         self.english = EnglishInterface(self)
-        self.show_page(self.english.login_screen)
+        self.show_page(self.english.job_show_page)
 
     def show_urdu(self):
         self.urdu = UrduInterface(self)
