@@ -30,47 +30,57 @@ class EnglishInterface:
         heading = ctk.CTkLabel(frame, 
                             text="Workedin: Employment Made Easy", 
                             font=("Arial", 24))
-        heading.place(relx=0.5, rely=0.03, anchor="center")
+        heading.place(relx=0.5, rely=0.15, anchor="center")
         
         # Description
         description = ctk.CTkLabel(frame, 
                                 text="Find the best jobs and make connections easily!", 
                                 font=("Arial", 16))
-        description.place(relx=0.5, rely=0.1, anchor="center")
+        description.place(relx=0.5, rely=0.22, anchor="center")
         
+        # Name field
         name_label = ctk.CTkLabel(frame, text="Full Name:", font=self.label_data_font)
-        name_label.place(relx=0.4, rely=0.2, anchor="e")
-        self.name_entry_box = ctk.CTkEntry(frame, width=200, height=30, placeholder_text="e.g Aslam Ahmed")
-        self.name_entry_box.place(relx=0.6, rely=0.2, anchor="w")
+        name_label.place(relx=0.35, rely=0.32, anchor="e")
+        self.name_entry_box = ctk.CTkEntry(frame, width=250, height=35, 
+                                          placeholder_text="Enter your full name")
+        self.name_entry_box.place(relx=0.4, rely=0.32, anchor="w")
 
-        
-
+        # Email field
         email_label = ctk.CTkLabel(frame, text="Email:", font=self.label_data_font)
-        email_label.place(relx=0.4, rely=0.3, anchor="e")
-        self.email_entry = ctk.CTkEntry(frame, width=200, height=30)
-        self.email_entry.place(relx=0.6, rely=0.3, anchor="w")
+        email_label.place(relx=0.35, rely=0.42, anchor="e")
+        self.email_entry = ctk.CTkEntry(frame, width=250, height=35,
+                                       placeholder_text="Enter your email address") 
+        self.email_entry.place(relx=0.4, rely=0.42, anchor="w")
         
+        # Password field
         password_label = ctk.CTkLabel(frame, text="Password:", font=self.label_data_font)
-        password_label.place(relx=0.4, rely=0.4, anchor="e")
-        self.password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        self.password_entry.place(relx=0.6, rely=0.4, anchor="w")
+        password_label.place(relx=0.35, rely=0.52, anchor="e")
+        self.password_entry = ctk.CTkEntry(frame, width=250, height=35, show="*",
+                                          placeholder_text="Enter your password")
+        self.password_entry.place(relx=0.4, rely=0.52, anchor="w")
         
+        # Confirm password field
         confirm_password_label = ctk.CTkLabel(frame, text="Confirm Password:", font=self.label_data_font)
-        confirm_password_label.place(relx=0.4, rely=0.5, anchor="e")
-        self.confirm_password_entry = ctk.CTkEntry(frame, width=200, height=30, show="*")
-        self.confirm_password_entry.place(relx=0.6, rely=0.5, anchor="w")
+        confirm_password_label.place(relx=0.35, rely=0.62, anchor="e")
+        self.confirm_password_entry = ctk.CTkEntry(frame, width=250, height=35, show="*",
+                                                 placeholder_text="Confirm your password")
+        self.confirm_password_entry.place(relx=0.4, rely=0.62, anchor="w")
 
+        # User type dropdown
         user_type_label = ctk.CTkLabel(frame, text="User Type:", font=self.label_data_font)
-        user_type_label.place(relx=0.4, rely=0.6, anchor="e")
-        self.user_type_box = ctk.CTkComboBox(frame, values=user_types)
-        self.user_type_box.place(relx=0.6, rely=0.6, anchor="w")
+        user_type_label.place(relx=0.35, rely=0.72, anchor="e")
+        self.user_type_box = ctk.CTkComboBox(frame, values=user_types, width=250, height=35)
+        self.user_type_box.place(relx=0.4, rely=0.72, anchor="w")
 
-        signup_button = ctk.CTkButton(frame, text="Sign Up", width=120, height=32, 
+        # Sign up button
+        signup_button = ctk.CTkButton(frame, text="Sign Up", width=200, height=40, 
                                     command=lambda: self.run_create_user())
-        signup_button.place(relx=0.5, rely=0.8, anchor="center")
+        signup_button.place(relx=0.5, rely=0.82, anchor="center")
 
-        login_button=ctk.CTkButton(frame,text="Already have an account? Log In",command=lambda:self.app.show_page(self.login_page))
-        login_button.place(relx=0.5, rely=0.85, anchor="center")
+        # Login link
+        login_button = ctk.CTkButton(frame, text="Already have an account? Log In",
+                                    command=lambda:self.app.show_page(self.login_page))
+        login_button.place(relx=0.5, rely=0.89, anchor="center")
 
         return frame
     
@@ -190,9 +200,6 @@ class EnglishInterface:
             self.current_user=None
             self.current_user_type=None
             self.app.show_page(self.login_page)
-    ##########################################################################################################
-    ##########################################################################################################
-    
 
     ##########################################################################################################
     ##########################################################################################################
@@ -485,7 +492,7 @@ class EnglishInterface:
         dict["dob"]= dob
         dict["city"]= city
         dict["cnic"]=cnic
-        self.db.collection("City wise Labour data").document(dict["city"]).collection(dict['profession']).document(self.current_user).set(
+        self.db.collection("City wise Tradesperson data").document(dict["city"]).collection(dict['profession']).document(self.current_user).set(
         {
             "name":dict["name"],
             "phone":dict["phone"],
@@ -526,6 +533,40 @@ class EnglishInterface:
 
 ###############################################################################################################################
 ###############################################################################################################################
+#docs=firebase_database.collection("City wise Job data").document("Karachi").collection("Carpenter").get()
+
+# for doc in docs:
+#   print(doc)  # Get document identifier
+#   data = doc.to_dict()  # Get
+#   print(data)
+    def database_available_jobs_get(self,city,job_title):
+        try:
+            docs = self.db.collection("City wise Job data").document(city).collection(job_title).get()
+            job_data_list = []
+            
+            if not docs:  # If no documents returned
+                return [{"name": "No Data",
+                        "phone": "N/A", 
+                        "address": "N/A",
+                        "description": "No jobs found",
+                        "job price": "N/A"}]
+
+            for doc in docs:
+                data = doc.to_dict()
+                if data:  # Check if document data exists
+                    job_data_list.append(data)
+                
+            return job_data_list if job_data_list else [{"name": "No Data",
+                                                        "phone": "N/A",
+                                                        "address": "N/A", 
+                                                        "description": "No jobs found",
+                                                        "job price": "N/A"}]
+        except:
+            return [{"name": "No Data",
+                    "phone": "N/A",
+                    "address": "N/A",
+                    "description": "Error retrieving jobs",
+                    "job price": "N/A"}]
 
     def job_show_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
@@ -540,70 +581,76 @@ class EnglishInterface:
         # City Filter
         city_label = ctk.CTkLabel(frame, text="Filter by City", font=self.label_data_font)
         city_label.place(relx=0.3, rely=0.1, anchor="e")
-        city_filter = ctk.CTkComboBox(frame, values=["All"] + ["Lahore", "Karachi", "Islamabad", "Faisalabad", "Peshawar", "Multan", "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal", "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", "Gujrat", "Hyderabad", "Jhang", "Jhelum", "Kasur", "Khuzdar", "Kotli", "Larkana", "Mardan", "Mingora", "Mirpur Khas", "Nawabshah", "Okara", "Rahim Yar Khan", "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"])
-        city_filter.place(relx=0.4, rely=0.1, anchor="w")
+        self.job_city_filter = ctk.CTkComboBox(frame, values=cities, width=250)
+        self.job_city_filter.place(relx=0.4, rely=0.1, anchor="w")
+
+        # Profession Filter
+        profession_label = ctk.CTkLabel(frame, text="Filter by Profession", font=self.label_data_font)
+        profession_label.place(relx=0.3, rely=0.15, anchor="e")
+        
+        def on_job_filter_change(choice):
+            if choice == "Other":
+                self.other_job_type_filter.configure(state="normal")
+            else:
+                self.other_job_type_filter.delete(0, "end")
+                self.other_job_type_filter.configure(state="disabled")
+                
+        self.job_profession_filter = ctk.CTkComboBox(frame, values=professions, width=250, command=on_job_filter_change)
+        self.job_profession_filter.place(relx=0.4, rely=0.15, anchor="w")
+
+        # Other Profession Entry
+        self.other_job_type_filter = ctk.CTkEntry(frame, placeholder_text="Please specify other profession", width=250)
+        self.other_job_type_filter.place(relx=0.4, rely=0.2, anchor="w")
+        self.other_job_type_filter.configure(state="disabled")
         
         # Scrollable Frame for Job List
-        scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=450)
-        scrollable_frame.place(relx=0.5, rely=0.2, anchor="n")
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=400)
+        scrollable_frame.place(relx=0.5, rely=0.25, anchor="n")
         
-        # Job List
-        job_list = [
-            {"title": "Software Engineer", "company": "Tech Corp", "location": "Lahore", "description": "Develop and maintain software applications."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Project Manager", "company": "Project Solutions", "location": "Islamabad", "description": "Manage and oversee project development."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            {"title": "Data Analyst", "company": "Data Inc.", "location": "Karachi", "description": "Analyze and interpret complex data sets."},
-            
-            # Add more job data as needed
-        ]
-        
-        # Display Jobs
-        def display_jobs(city):
+        def display_jobs():
+            # Clear previous entries
             for widget in scrollable_frame.winfo_children():
                 widget.destroy()
+                
+            city = self.job_city_filter.get()
+            profession = self.job_profession_filter.get()
+            if profession == "Other":
+                profession = self.other_job_type_filter.get()
             
-            filtered_job_list = [job for job in job_list if city == "All" or job["location"] == city]
+            # Get filtered job list from database
+            job_list = self.database_available_jobs_get(city, profession)
             
-            for index, job in enumerate(filtered_job_list):
+            for job in job_list:
+                # Create frame for each job entry
                 job_frame = ctk.CTkFrame(scrollable_frame, width=880, height=100, border_width=1, border_color="gray")
-                job_frame.pack(pady=10)
+                job_frame.pack(pady=10, fill="x", padx=5)
                 
-                job_title = ctk.CTkLabel(job_frame, text=job["title"], font=("Arial", 18))
-                job_title.place(relx=0.05, rely=0.2, anchor="w")
+                # Configure frame to maintain size
+                job_frame.pack_propagate(False)
                 
-                job_company = ctk.CTkLabel(job_frame, text=f"Company: {job['company']}", font=("Arial", 14))
-                job_company.place(relx=0.05, rely=0.5, anchor="w")
+                # Display job information
+                name_label = ctk.CTkLabel(job_frame, text=f"Contact Name: {job['name']}", font=("Arial", 16))
+                name_label.place(relx=0.05, rely=0.2, anchor="w")
                 
-                job_location = ctk.CTkLabel(job_frame, text=f"Location: {job['location']}", font=("Arial", 14))
-                job_location.place(relx=0.05, rely=0.8, anchor="w")
+                price_label = ctk.CTkLabel(job_frame, text=f"Job Price: Rs. {job['job price']}", font=("Arial", 14))
+                price_label.place(relx=0.05, rely=0.5, anchor="w")
                 
-                job_description = ctk.CTkLabel(job_frame, text=job["description"], font=("Arial", 12))
-                job_description.place(relx=0.5, rely=0.5, anchor="center")
-        
-        city_filter.set("All")
-        city_filter.bind("<<ComboboxSelected>>", lambda event: display_jobs(city_filter.get()))
-        
-        display_jobs("All")
+                phone_label = ctk.CTkLabel(job_frame, text=f"Phone: {job['phone']}", font=("Arial", 14))
+                phone_label.place(relx=0.05, rely=0.8, anchor="w")
+                
+                address_label = ctk.CTkLabel(job_frame, text=f"Address: {job['address']}", font=("Arial", 14))
+                address_label.place(relx=0.4, rely=0.3, anchor="w")
+                
+                description_label = ctk.CTkLabel(job_frame, text=f"Description: {job['description']}", font=("Arial", 14))
+                description_label.place(relx=0.4, rely=0.7, anchor="w")
+
+        # Add search button
+        search_button = ctk.CTkButton(frame, text="Search", width=120, height=32, 
+                                    command=display_jobs)
+        search_button.place(relx=0.7, rely=0.15, anchor="center")
         
         # Back Button
-        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, command=lambda: self.app.show_page(self.app.labour_main_dashboard))
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, command=lambda: self.app.show_page(self.labour_main_dashboard))
         back_button.place(relx=0.5, rely=0.9, anchor="center")
         
         return frame
@@ -761,8 +808,7 @@ class EnglishInterface:
         back_button.place(relx=0.3, rely=0.8, anchor="center")
     
         return frame
-    
-################################################################################################################################
+ 
     def employer_profile_database_entry(self,phone,address,city):
         dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
         dict['phone']= phone
@@ -786,6 +832,7 @@ class EnglishInterface:
             self.app.show_page(self.employer_profile_view_page)
 #####################################################################################################################################
 ####################################################################################################################################    
+    
     def job_submission_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -801,14 +848,14 @@ class EnglishInterface:
         # City Selection
         city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
         city_label.place(relx=0.35, rely=y_start, anchor="e")
-        city_box = ctk.CTkOptionMenu(frame, values=cities, width=250)
-        city_box.place(relx=0.4, rely=y_start, anchor="w")
+        self.city_box_job_sub = ctk.CTkOptionMenu(frame, values=cities, width=250)
+        self.city_box_job_sub.place(relx=0.4, rely=y_start, anchor="w")
 
         # Job Type Selection
         job_type_label = ctk.CTkLabel(frame, text="Job Type:", font=self.label_data_font)
         job_type_label.place(relx=0.35, rely=y_start + y_increment, anchor="e")
-        job_type_box = ctk.CTkOptionMenu(frame, values=professions, width=250, command=self.on_job_type_change)
-        job_type_box.place(relx=0.4, rely=y_start + y_increment, anchor="w")
+        self.job_type_box_sub = ctk.CTkOptionMenu(frame, values=professions, width=250, command=self.on_job_type_change)
+        self.job_type_box_sub.place(relx=0.4, rely=y_start + y_increment, anchor="w")
 
         # Other Job Type Entry
         self.other_job_entry = ctk.CTkEntry(frame, placeholder_text="Please specify other job type", width=250)
@@ -816,33 +863,33 @@ class EnglishInterface:
         self.other_job_entry.configure(state="disabled")
 
         # User Name Entry
-        user_name_label = ctk.CTkLabel(frame, text="User Name:", font=self.label_data_font)
-        user_name_label.place(relx=0.35, rely=y_start + y_increment*3, anchor="e")
-        user_name_entry = ctk.CTkEntry(frame, placeholder_text="e.g Aslam Ahmed", width=250)
-        user_name_entry.place(relx=0.4, rely=y_start + y_increment*3, anchor="w")
+        job_price_label = ctk.CTkLabel(frame, text="Job Wage:", font=self.label_data_font)
+        job_price_label.place(relx=0.35, rely=y_start + y_increment*3, anchor="e")
+        self.job_price_entry = ctk.CTkEntry(frame, placeholder_text="e.g 1000", width=250)
+        self.job_price_entry.place(relx=0.4, rely=y_start + y_increment*3, anchor="w")
 
         # Job Description
         job_description_label = ctk.CTkLabel(frame, text="Job Description:", font=self.label_data_font)
         job_description_label.place(relx=0.35, rely=y_start + y_increment*4, anchor="e")
-        job_description_entry = ctk.CTkTextbox(frame, width=400, height=150)
-        job_description_entry.place(relx=0.4, rely=y_start + y_increment*4.5, anchor="w")
+        self.job_description_entry = ctk.CTkTextbox(frame, width=400, height=150)
+        self.job_description_entry.place(relx=0.4, rely=y_start + y_increment*4.5, anchor="w")
         
         # Add placeholder text
-        job_description_entry.insert("0.0", "Enter detailed job description here...")
-        job_description_entry.configure(text_color="gray")
+        self.job_description_entry.insert("0.0", "Enter detailed job description here...")
+        self.job_description_entry.configure(text_color="gray")
         
         def on_focus_in(event):
-            if job_description_entry.get("0.0", "end-1c") == "Enter detailed job description here...":
-                job_description_entry.delete("0.0", "end")
-                job_description_entry.configure(text_color="white")
+            if self.job_description_entry.get("0.0", "end-1c") == "Enter detailed job description here...":
+                self.job_description_entry.delete("0.0", "end")
+                self.job_description_entry.configure(text_color="white")
             
         def on_focus_out(event):
-            if job_description_entry.get("0.0", "end-1c").strip() == "":
-                job_description_entry.insert("0.0", "Enter detailed job description here...")
-                job_description_entry.configure(text_color="gray")
+            if self.job_description_entry.get("0.0", "end-1c").strip() == "":
+                self.job_description_entry.insert("0.0", "Enter detailed job description here...")
+                self.job_description_entry.configure(text_color="gray")
             
-        job_description_entry.bind("<FocusIn>", on_focus_in)
-        job_description_entry.bind("<FocusOut>", on_focus_out)
+        self.job_description_entry.bind("<FocusIn>", on_focus_in)
+        self.job_description_entry.bind("<FocusOut>", on_focus_out)
 
         # Buttons at the bottom
         back_button = ctk.CTkButton(frame, text="Back", width=120, height=35,
@@ -850,7 +897,7 @@ class EnglishInterface:
         back_button.place(relx=0.4, rely=0.9, anchor="center")
 
         submit_button = ctk.CTkButton(frame, text="Submit", width=120, height=35,
-                                     command=lambda: self.app.show_page(self.job_submission_page))
+                                     command=self.job_submission)
         submit_button.place(relx=0.6, rely=0.9, anchor="center")
 
         return frame
@@ -862,13 +909,54 @@ class EnglishInterface:
             self.other_job_entry.delete(0, "end")
             self.other_job_entry.configure(state="disabled")
 
+ 
+    def job_database_entry(self,city,job_type,price,job_description):
+        doc_ref = self.db.collection("City wise Job data").document(city).collection(job_type).document()
+        unique_id = doc_ref.id
+        print(unique_id)
+
+        employer_data = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        if not employer_data.get("posted job ids"):
+            employer_data["posted job ids"]=[unique_id]
+        else:
+            employer_data["posted job ids"].append(unique_id)
+        self.db.collection(self.current_user_type).document(self.current_user).set(employer_data)
+
+        self.db.collection("Job ids").document(unique_id).set({
+            "city": city,
+            "job type": job_type,
+        })
+
+        doc_ref.set({
+            "name": employer_data["name"],
+            "phone": employer_data["phone"],
+            "address": employer_data["address"],
+            "description": job_description,
+            "job price": price,
+               # Store ID in document itself
+        })
+
+    def job_submission(self):
+        city = self.city_box_job_sub.get()
+        job_type = self.job_type_box_sub.get()
+        if job_type == "Other":
+            job_type = self.other_job_entry.get()
+        price = self.job_price_entry.get()
+        job_description = self.job_description_entry.get("0.0", "end-1c")
+
+        if(is_empty(price) or is_empty(job_description)):
+            messagebox.showerror("Error","Please fill out all fields")
+            return
+        else:
+            self.job_database_entry(city,job_type,price,job_description)
+            self.app.show_page(self.employer_main_dashboard)
 
 ##########################################################################################################################################################
 ##########################################################################################################################################################
 
     def available_labour_database_get(self,city,profession):
         try:
-            data = self.db.collection("City wise Labour data").document(city).collection(profession).get()
+            data = self.db.collection("City wise Tradesperson data").document(city).collection(profession).get()
             labour_list = list()
             
             if not data:  # If no data is returned
