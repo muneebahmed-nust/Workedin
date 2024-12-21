@@ -174,7 +174,7 @@ class EnglishInterface:
         user_type=self.user_type_dropdown.get()
         
         pass_checker=self.login_database_retrieve(username,user_type).to_dict()
-        print(pass_checker)
+
         if password==pass_checker["password"]:
             self.current_user=username
             self.current_user_type=user_type
@@ -192,11 +192,6 @@ class EnglishInterface:
     ##########################################################################################################
     ##########################################################################################################
     
-    def back_to_main(self):
-        if self.current_user_type=="Tradesperson":
-            self.app.show_page(self.labour_main_dashboard)
-        else:
-            self.app.show_page(self.employer_main_dashboard)
 
     ##########################################################################################################
     ##########################################################################################################
@@ -234,7 +229,7 @@ class EnglishInterface:
         save_button.place(relx=0.5, rely=0.6, anchor="center")
         
         # Back button
-        back_button = ctk.CTkButton(frame, text="Back", width=200, height=40, fg_color="#DB2C2C", hover_color="#AF1C1C", command=self.back_to_main)
+        back_button = ctk.CTkButton(frame, text="Back", width=200, height=40, fg_color="#DB2C2C", hover_color="#AF1C1C")
         back_button.place(relx=0.5, rely=0.7, anchor="center")
         
         return frame
@@ -244,23 +239,24 @@ class EnglishInterface:
     
     def labour_main_dashboard(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
-        frame.place(relwidth=1, relheight=1)
+        frame.pack(fill="both", expand=True)
 
         # Main screen title
         self.title_label = ctk.CTkLabel(frame, text="Laborer Dashboard", font=self.heading_label_font)
         self.title_label.place(relx=0.5, rely=0.1, anchor="center")
 
         # Buttons for searching jobs
-        search_jobs_button = ctk.CTkButton(frame, text="Search Jobs", command=self.app.show_page(self.job_show_page))
+        search_jobs_button = ctk.CTkButton(frame, text="Search Jobs", command=lambda:self.app.show_page(self.job_show_page))
         search_jobs_button.place(relx=0.5, rely=0.3, anchor="center")
 
         
-        update_profile_button = ctk.CTkButton(frame, text="Update Profile", command=self.app.show_page(self.labour_data_entry_page))
+        update_profile_button = ctk.CTkButton(frame, text="Update Profile", command=lambda:self.app.show_page(self.labour_data_entry_page))
         update_profile_button.place(relx=0.5, rely=0.4, anchor="center")
 
         # Logout Button
         logout_button = ctk.CTkButton(frame, text="Logout", command=self.logout)
         logout_button.place(relx=0.95, rely=0.05, anchor="center")
+        
         return frame
     
 ###############################################################################################################################
@@ -340,15 +336,14 @@ class EnglishInterface:
         submit_button.place(relx=0.4, rely=0.75, anchor="center")
 
         back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, 
-                                command=lambda: self.app.show_page(self.app.labour_main_dashboard))
+                                command=lambda: self.app.show_page(self.labour_main_dashboard))
         back_button.place(relx=0.5, rely=0.8, anchor="center")
        
         return frame
     
     def labour_database_entry(self,cnic,profession,phone,experience,dob,city):
         dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
-        print(dict)
-        print(type(dict))
+     
         dict['profession']= profession
         dict["phone"]= phone
         dict["experience"]= experience
@@ -356,8 +351,7 @@ class EnglishInterface:
         dict["city"]= city
         dict["cnic"]=cnic
         self.db.collection(self.current_user_type).document(self.current_user).set(dict)
-        print(dict)
-
+        
 
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
@@ -378,7 +372,8 @@ class EnglishInterface:
                 messagebox.showerror("Input Error","Please enter a valid phone number")
                 return
             self.labour_database_entry(cnic,profession,phone,experience,dob,city)
-            self.app.show_page(self.create_labor_main_screen)
+    
+            self.app.show_page(self.labour_main_dashboard)
 
 ###############################################################################################################################
 ###############################################################################################################################
@@ -544,7 +539,7 @@ class EnglishInterface:
         submit_button = ctk.CTkButton(frame, text="Submit", command=lambda: self.app.show_page(self.job_submission_page))
         submit_button.place(relx=0.5, rely=0.9, anchor="center")
         back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, 
-                                command=lambda: self.app.show_page(self.app.employer_main_dashboard))
+                                command=lambda: self.app.show_page(self.employer_main_dashboard))
         back_button.place(relx=0.4, rely=0.8, anchor="center")
 
         return frame
@@ -640,22 +635,6 @@ class EnglishInterface:
 ############################################################################################################################################################
 
 
-    def view_jobs(self):
-        frame = ctk.CTkFrame(self.root, width=1000, height=600)
-        frame.place(relwidth=1, relheight=1)
-        """Display available jobs based on selected skill and location"""
-        self.title_label = ctk.CTkLabel(frame, text="Available Jobs", font=self.heading_label_font)
-        self.title_label.pack(pady=20)
-
-        if self.skill and self.location:
-            jobs_text = f"Available jobs for {self.skill} in {self.location}:"
-            jobs_text += "\n\n1. Job 1 - Details\n2. Job 2 - Details\n3. Job 3 - Details"
-        else:
-            jobs_text = "No job available. Please select a skill and location."
-
-        self.jobs_label = ctk.CTkLabel(self.root, text=jobs_text, font=self.data_label_font)
-        self.jobs_label.pack(pady=20)
-    
    
     
     
