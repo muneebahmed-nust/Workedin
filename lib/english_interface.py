@@ -69,7 +69,7 @@ class EnglishInterface:
                                     command=lambda: self.run_create_user())
         signup_button.place(relx=0.5, rely=0.8, anchor="center")
 
-        login_button=ctk.CTkButton(frame,text="Already have an account? Log In",command=lambda:self.app.show_page(self.login_screen))
+        login_button=ctk.CTkButton(frame,text="Already have an account? Log In",command=lambda:self.app.show_page(self.login_page))
         login_button.place(relx=0.5, rely=0.85, anchor="center")
 
         return frame
@@ -127,7 +127,7 @@ class EnglishInterface:
     #####################################################################################################
     #####################################################################################################    
 
-    def login_screen(self):
+    def login_page(self):
         # Create a frame for the login screen
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -188,7 +188,7 @@ class EnglishInterface:
     def logout(self):
             self.current_user=None
             self.current_user_type=None
-            self.app.show_page(self.login_screen)
+            self.app.show_page(self.login_page)
     ##########################################################################################################
     ##########################################################################################################
     
@@ -227,13 +227,22 @@ class EnglishInterface:
         # Save button
         save_button = ctk.CTkButton(frame, text="Save Changes", width=200, height=40, fg_color="#2C7CDB", hover_color="#1C5FAF", command=self.save_password_changes)
         save_button.place(relx=0.5, rely=0.6, anchor="center")
+       
         
-        # Back button
-        back_button = ctk.CTkButton(frame, text="Back", width=200, height=40, fg_color="#DB2C2C", hover_color="#AF1C1C")
+
+        # Then use it in the button:
+        back_button = ctk.CTkButton(frame, text="Back", width=200, height=40, 
+                                command=self.navigate_dashboard)
         back_button.place(relx=0.5, rely=0.7, anchor="center")
         
         return frame
     
+    def navigate_dashboard(self):
+            if self.current_user_type == "Tradesperson":
+                self.app.show_page(self.labour_main_dashboard)
+            else:
+                self.app.show_page(self.employer_main_dashboard)
+
     def new_password_database_entry(self,new_password):
         dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
         dict['password']= new_password
@@ -312,15 +321,20 @@ class EnglishInterface:
         # Profession
         profession_label = ctk.CTkLabel(frame, text="Profession:", font=self.label_data_font)
         profession_label.place(relx=0.35, rely=y_start + y_increment, anchor="e")
-        self.profession_box = ctk.CTkComboBox(frame, values=professions, width=250, height=35)
+        self.profession_box = ctk.CTkComboBox(frame, values=professions, width=250, height=35, command=self.on_profession_change)
         self.profession_box.place(relx=0.4, rely=y_start + y_increment, anchor="w")
+
+        # Other Profession Entry
+        self.other_profession_entry = ctk.CTkEntry(frame, placeholder_text="Please specify other profession", width=250, height=35)
+        self.other_profession_entry.place(relx=0.4, rely=y_start + y_increment*1.5, anchor="w")
+        self.other_profession_entry.configure(state="disabled")
 
         # Date of Birth
         dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
-        dob_label.place(relx=0.35, rely=y_start + y_increment*2, anchor="e")
+        dob_label.place(relx=0.35, rely=y_start + y_increment*2.5, anchor="e")
         
         date_frame = ctk.CTkFrame(frame)
-        date_frame.place(relx=0.4, rely=y_start + y_increment*2, anchor="w")
+        date_frame.place(relx=0.4, rely=y_start + y_increment*2.5, anchor="w")
         
         self.dob_entry_box = ctk.CTkEntry(date_frame, width=215, height=35)
         self.dob_entry_box.pack(side="left", padx=(0,5))
@@ -340,7 +354,7 @@ class EnglishInterface:
                 self.calendar_frame = None
             else:
                 self.calendar_frame = ctk.CTkFrame(frame)
-                self.calendar_frame.place(relx=0.7, rely=y_start + y_increment*2, anchor="w")
+                self.calendar_frame.place(relx=0.7, rely=y_start + y_increment*2.5, anchor="w")
                 self.cal = Calendar(self.calendar_frame, selectmode='day', date_pattern='dd/mm/yyyy')
                 self.cal.pack()
                 select_btn = ctk.CTkButton(self.calendar_frame, text="Select", command=get_date)
@@ -351,32 +365,39 @@ class EnglishInterface:
 
         # Phone
         phone_label = ctk.CTkLabel(frame, text="Phone:", font=self.label_data_font)
-        phone_label.place(relx=0.35, rely=y_start + y_increment*3, anchor="e")
+        phone_label.place(relx=0.35, rely=y_start + y_increment*3.5, anchor="e")
         self.phone_entry_box = ctk.CTkEntry(frame, width=250, height=35, placeholder_text="e.g 03001234567")
-        self.phone_entry_box.place(relx=0.4, rely=y_start + y_increment*3, anchor="w")
+        self.phone_entry_box.place(relx=0.4, rely=y_start + y_increment*3.5, anchor="w")
 
         # Experience
         experience_label = ctk.CTkLabel(frame, text="Years of Experience:", font=self.label_data_font)
-        experience_label.place(relx=0.35, rely=y_start + y_increment*4, anchor="e")
+        experience_label.place(relx=0.35, rely=y_start + y_increment*4.5, anchor="e")
         self.experience_entry_box = ctk.CTkEntry(frame, width=250, height=35, placeholder_text="e.g 10")
-        self.experience_entry_box.place(relx=0.4, rely=y_start + y_increment*4, anchor="w")
+        self.experience_entry_box.place(relx=0.4, rely=y_start + y_increment*4.5, anchor="w")
 
         # City
         city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
-        city_label.place(relx=0.35, rely=y_start + y_increment*5, anchor="e")
+        city_label.place(relx=0.35, rely=y_start + y_increment*5.5, anchor="e")
         self.city_box = ctk.CTkComboBox(frame, values=cities, width=250, height=35)
-        self.city_box.place(relx=0.4, rely=y_start + y_increment*5, anchor="w")
+        self.city_box.place(relx=0.4, rely=y_start + y_increment*5.5, anchor="w")
 
         # Buttons
         submit_button = ctk.CTkButton(frame, text="Submit", command=self.labour_entry, width=120, height=35)
-        submit_button.place(relx=0.5, rely=y_start + y_increment*6, anchor="center")
+        submit_button.place(relx=0.5, rely=y_start + y_increment*6.5, anchor="center")
 
         back_button = ctk.CTkButton(frame, text="Back", width=120, height=35, 
                                    command=lambda: self.app.show_page(self.labour_main_dashboard))
-        back_button.place(relx=0.35, rely=y_start + y_increment*6, anchor="center")
+        back_button.place(relx=0.35, rely=y_start + y_increment*6.5, anchor="center")
 
         return frame
     
+    def on_profession_change(self, selected_profession):
+        if selected_profession == "Other":
+            self.other_profession_entry.configure(state="normal") 
+        else:
+            self.other_profession_entry.delete(0, "end")
+            self.other_profession_entry.configure(state="disabled")
+            
     def labour_database_entry(self,cnic,profession,phone,experience,dob,city):
         dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
      
@@ -392,6 +413,8 @@ class EnglishInterface:
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
         profession=self.profession_box.get()
+        if profession == "Other":
+            profession = self.other_profession_entry.get()
         phone=self.phone_entry_box.get()
         experience=self.experience_entry_box.get()
         dob=self.dob_entry_box.get()
@@ -527,7 +550,7 @@ class EnglishInterface:
         change_password_button.place(relx=0.5, rely=0.5, anchor="center")
         
         # Profile Button
-        profile_button = ctk.CTkButton(frame, text="Profile", width=200, height=40)
+        profile_button = ctk.CTkButton(frame, text="Profile", width=200, height=40, command=lambda: self.app.show_page(self.employer_profile_view_page))
         profile_button.place(relx=0.5, rely=0.6, anchor="center")
         
         # Logout Button
@@ -539,47 +562,203 @@ class EnglishInterface:
    
 ####################################################################################################################
 #############################################################################################################################  
+    def database_view_profile_employer(self):
+        dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        print(dict)
+        print(type(dict))
+
+        # Check if fields exist and are not None, otherwise return placeholder text
+        phone = dict.get("phone", None) 
+        address = dict.get("address", None)
+        city = dict.get("city", None)
+
+        if phone is None:
+            phone = "Field not filled. Please update your profile"
+        if address is None:    
+            address = "Field not filled. Please update your profile"
+        if city is None:
+            city = "Field not filled. Please update your profile"
+
+        return phone, address, city
+         
+    def employer_profile_view_page(self):
+        frame = ctk.CTkFrame(self.root, width=1000, height=600)
+        frame.pack(fill="both", expand=True)
+        
+        # Header
+        heading = ctk.CTkLabel(frame, 
+                    text="Employer Profile", 
+                    font=("Arial", 24))
+        heading.place(relx=0.5, rely=0.03, anchor="center")
+        # Starting positions
+        y_start = 0.2
+        y_increment = 0.1
+
+        phone,address,city=self.database_view_profile_employer()
+        # Phone
+        phone_label = ctk.CTkLabel(frame, text="Phone", font=self.label_data_font)
+        phone_label.place(relx=0.4, rely=y_start, anchor="e")
+        phone_entry = ctk.CTkEntry(frame, width=300, height=30)
+        phone_entry.insert(0,phone)
+        phone_entry.configure(state="disabled")
+        phone_entry.place(relx=0.6, rely=y_start, anchor="w")
+        
+        # Address
+        address_label = ctk.CTkLabel(frame, text="Address", font=self.label_data_font)
+        address_label.place(relx=0.4, rely=y_start + y_increment, anchor="e")
+        address_entry = ctk.CTkEntry(frame, width=300, height=30)
+        address_entry.insert(0,address)
+        address_entry.configure(state="disabled")
+        address_entry.place(relx=0.6, rely=y_start + y_increment, anchor="w")
+        
+        # City 
+        city_label = ctk.CTkLabel(frame, text="City", font=self.label_data_font)
+        city_label.place(relx=0.4, rely=y_start + y_increment*2, anchor="e")
+        city_entry = ctk.CTkEntry(frame, width=300, height=30)
+        city_entry.insert(0,city)
+        city_entry.configure(state="disabled")
+        city_entry.place(relx=0.6, rely=y_start + y_increment*2, anchor="w")
+
+        edit_button = ctk.CTkButton(frame, text="Edit", width=120, height=35,
+                        command=lambda: self.app.show_page(self.employer_profile_update_page))
+        edit_button.place(relx=0.5, rely=0.8, anchor="center")
+
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=35,command=lambda: self.app.show_page(self.employer_main_dashboard))
+        back_button.place(relx=0.3, rely=0.8, anchor="center")
+
+        return frame
+#############################################################################################################################
+########################################################################################################################################
+
+    def employer_profile_update_page(self):
+        frame = ctk.CTkFrame(self.root, width=1000, height=600)
+        frame.pack(fill="both", expand=True)
+        
+        # Header
+        heading = ctk.CTkLabel(frame, 
+                            text="Employer Profile", 
+                            font=("Arial", 24))
+        heading.place(relx=0.5, rely=0.03, anchor="center")
+        # Starting positions
+        y_start = 0.2
+        y_increment = 0.1
+
+        # Phone
+        phone_label = ctk.CTkLabel(frame, text="Phone", font=self.label_data_font)
+        phone_label.place(relx=0.4, rely=y_start, anchor="e")
+        self.phone_entry_employer = ctk.CTkEntry(frame, width=300, height=30)
+        self.phone_entry_employer.place(relx=0.6, rely=y_start, anchor="w")
+        
+        # Address
+        address_label = ctk.CTkLabel(frame, text="Address", font=self.label_data_font)
+        address_label.place(relx=0.4, rely=y_start + y_increment, anchor="e")
+        self.address_entry_employer = ctk.CTkEntry(frame, width=300, height=30)
+        self.address_entry_employer.place(relx=0.6, rely=y_start + y_increment, anchor="w")
+        
+        # City 
+        city_label = ctk.CTkLabel(frame, text="City", font=self.label_data_font)
+        city_label.place(relx=0.4, rely=y_start + y_increment*2, anchor="e")
+        self.city_box_employer = ctk.CTkComboBox(frame, values=cities, width=300, height=30)
+        self.city_box_employer.place(relx=0.6, rely=y_start + y_increment*2, anchor="w")
+
+        update_button = ctk.CTkButton(frame, text="Update", width=120, height=35,command=self.employer_profile_entry)
+        update_button.place(relx=0.5, rely=0.8, anchor="center")
+
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=35,command=lambda: self.app.show_page(self.employer_profile_view_page))
+        back_button.place(relx=0.3, rely=0.8, anchor="center")
     
+        return frame
+    
+################################################################################################################################
+    def employer_profile_database_entry(self,phone,address,city):
+        dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        dict['phone']= phone
+        dict["address"]= address
+        dict["city"]= city
+        self.db.collection(self.current_user_type).document(self.current_user).set(dict)
+
+    def employer_profile_entry(self):
+        phone=self.phone_entry_employer.get()
+        address=self.address_entry_employer.get()
+        city=self.city_box_employer.get()
+
+        if(is_empty(phone) or is_empty(address) or is_empty(city)):
+            messagebox.showerror("Error","Please fill out all fields")
+            return
+        else:
+            if (is_invalid_phone(phone)):
+                messagebox.showerror("Input Error","Please enter a valid phone number")
+                return
+            self.employer_profile_database_entry(phone,address,city)
+            self.app.show_page(self.employer_profile_view_page)
+#####################################################################################################################################
+####################################################################################################################################    
     def job_submission_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
 
+        # Header
         heading = ctk.CTkLabel(frame, text="Job Submission", font=self.heading_label_font)
-        heading.place(relx=0.5, rely=0.1, anchor="center")
+        heading.place(relx=0.5, rely=0.05, anchor="center")
 
-        city_label = ctk.CTkLabel(frame, text="City", font=self.label_data_font)
-        city_label.place(relx=0.35, rely=0.25, anchor="e")
-        city_box = ctk.CTkOptionMenu(frame, values=cities)
-        city_box.place(relx=0.4, rely=0.3, anchor="w")
+        # Starting vertical position and spacing
+        y_start = 0.2
+        y_increment = 0.1
 
-        job_type_label = ctk.CTkLabel(frame, text="Job Type", font=self.label_data_font)
-        job_type_label.place(relx=0.35, rely=0.35, anchor="e")
+        # City Selection
+        city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
+        city_label.place(relx=0.35, rely=y_start, anchor="e")
+        city_box = ctk.CTkOptionMenu(frame, values=cities, width=250)
+        city_box.place(relx=0.4, rely=y_start, anchor="w")
 
-        job_type_box = ctk.CTkOptionMenu(frame, values= professions, command=self.on_job_type_change)
-        job_type_box.place(relx=0.4, rely=0.35, anchor="w")
+        # Job Type Selection
+        job_type_label = ctk.CTkLabel(frame, text="Job Type:", font=self.label_data_font)
+        job_type_label.place(relx=0.35, rely=y_start + y_increment, anchor="e")
+        job_type_box = ctk.CTkOptionMenu(frame, values=professions, width=250, command=self.on_job_type_change)
+        job_type_box.place(relx=0.4, rely=y_start + y_increment, anchor="w")
 
-        self.other_job_entry = ctk.CTkEntry(frame, placeholder_text="Please specify", width=200, height=30)
-        self.other_job_entry.place(relx=0.4, rely=0.45, anchor="w")
+        # Other Job Type Entry
+        self.other_job_entry = ctk.CTkEntry(frame, placeholder_text="Please specify other job type", width=250)
+        self.other_job_entry.place(relx=0.4, rely=y_start + y_increment*2, anchor="w")
         self.other_job_entry.configure(state="disabled")
 
-        user_name_label = ctk.CTkLabel(frame, text="User Name", font=self.label_data_font)
-        user_name_label.place(relx=0.35, rely=0.55, anchor="e")
+        # User Name Entry
+        user_name_label = ctk.CTkLabel(frame, text="User Name:", font=self.label_data_font)
+        user_name_label.place(relx=0.35, rely=y_start + y_increment*3, anchor="e")
+        user_name_entry = ctk.CTkEntry(frame, placeholder_text="e.g Aslam Ahmed", width=250)
+        user_name_entry.place(relx=0.4, rely=y_start + y_increment*3, anchor="w")
 
-        user_name_entry = ctk.CTkEntry(frame, placeholder_text="e.g Aslam Ahmed", width=200, height=30)
-        user_name_entry.place(relx=0.4, rely=0.55, anchor="w")
+        # Job Description
+        job_description_label = ctk.CTkLabel(frame, text="Job Description:", font=self.label_data_font)
+        job_description_label.place(relx=0.35, rely=y_start + y_increment*4, anchor="e")
+        job_description_entry = ctk.CTkTextbox(frame, width=400, height=150)
+        job_description_entry.place(relx=0.4, rely=y_start + y_increment*4.5, anchor="w")
+        
+        # Add placeholder text
+        job_description_entry.insert("0.0", "Enter detailed job description here...")
+        job_description_entry.configure(text_color="gray")
+        
+        def on_focus_in(event):
+            if job_description_entry.get("0.0", "end-1c") == "Enter detailed job description here...":
+                job_description_entry.delete("0.0", "end")
+                job_description_entry.configure(text_color="white")
+            
+        def on_focus_out(event):
+            if job_description_entry.get("0.0", "end-1c").strip() == "":
+                job_description_entry.insert("0.0", "Enter detailed job description here...")
+                job_description_entry.configure(text_color="gray")
+            
+        job_description_entry.bind("<FocusIn>", on_focus_in)
+        job_description_entry.bind("<FocusOut>", on_focus_out)
 
-        job_description_label = ctk.CTkLabel(frame, text="Job Description", font=self.label_data_font)
-        job_description_label.place(relx=0.35, rely=0.65, anchor="e")
+        # Buttons at the bottom
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=35,
+                                   command=lambda: self.app.show_page(self.employer_main_dashboard))
+        back_button.place(relx=0.4, rely=0.9, anchor="center")
 
-        job_description_entry = ctk.CTkTextbox(frame, width=300, height=120)
-        job_description_entry.insert("0.0", "")  # Add placeholder text
-        job_description_entry.place(relx=0.4, rely=0.65, anchor="w")
-
-        submit_button = ctk.CTkButton(frame, text="Submit", command=lambda: self.app.show_page(self.job_submission_page))
-        submit_button.place(relx=0.5, rely=0.9, anchor="center")
-        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, 
-                                command=lambda: self.app.show_page(self.employer_main_dashboard))
-        back_button.place(relx=0.4, rely=0.8, anchor="center")
+        submit_button = ctk.CTkButton(frame, text="Submit", width=120, height=35,
+                                     command=lambda: self.app.show_page(self.job_submission_page))
+        submit_button.place(relx=0.6, rely=0.9, anchor="center")
 
         return frame
 
@@ -589,6 +768,7 @@ class EnglishInterface:
         else:
             self.other_job_entry.delete(0, "end")
             self.other_job_entry.configure(state="disabled")
+
 
 ##########################################################################################################################################################
 ###################################################################################################################################################
