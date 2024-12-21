@@ -674,32 +674,38 @@ class EnglishInterface:
                                 text="Manage your job postings and view applications", 
                                 font=("Arial", 16))
         description.place(relx=0.5, rely=0.1, anchor="center")
+
+        # Available Tradespersons Button
+        available_labour_button_dashboard = ctk.CTkButton(frame, text="Available Tradespersons", width=200, height=40,
+                                                        command=lambda: self.app.show_page(self.available_labour_page))
+        available_labour_button_dashboard.place(relx=0.5, rely=0.3, anchor="center")
         
-        # Job Postings Button
-        available_labour_button_dashboard = ctk.CTkButton(frame, text="Available Tradespersons", width=200, height=40,command=lambda: self.app.show_page(self.available_labour_page))
-        available_labour_button_dashboard.place(relx=0.5, rely=0.2, anchor="center")
-        
-        # Create Job Posting Button
-        create_job_button = ctk.CTkButton(frame, text="Create Job Posting", width=200, height=40, 
+        # Create Job Button  
+        create_job_button = ctk.CTkButton(frame, text="Create Job Posting", width=200, height=40,
                                         command=lambda: self.app.show_page(self.job_submission_page))
         create_job_button.place(relx=0.5, rely=0.4, anchor="center")
+        
+        # Delete Job Button
+        delete_job_button = ctk.CTkButton(frame, text="Delete Job Posting", width=200, height=40,
+                                        command=lambda: self.app.show_page(self.delete_old_jobs_page))
+        delete_job_button.place(relx=0.5, rely=0.5, anchor="center")
         
         # Change Password Button
         change_password_button = ctk.CTkButton(frame, text="Change Password", width=200, height=40,
                                              command=lambda: self.app.show_page(self.change_password_page))
-        change_password_button.place(relx=0.5, rely=0.5, anchor="center")
+        change_password_button.place(relx=0.5, rely=0.6, anchor="center")
         
-        # Profile Button
-        profile_button = ctk.CTkButton(frame, text="Profile", width=200, height=40, command=lambda: self.app.show_page(self.employer_profile_view_page))
-        profile_button.place(relx=0.5, rely=0.6, anchor="center")
+        # Profile Button  
+        profile_button = ctk.CTkButton(frame, text="Profile", width=200, height=40,
+                                     command=lambda: self.app.show_page(self.employer_profile_view_page))
+        profile_button.place(relx=0.5, rely=0.7, anchor="center")
         
         # Logout Button
-        logout_button = ctk.CTkButton(frame, text="Logout", width=200, height=40, 
-                                    command=lambda: self.logout())
-        logout_button.place(relx=0.5, rely=0.7, anchor="center")
+        logout_button = ctk.CTkButton(frame, text="Logout", width=200, height=40,
+                                    command=self.logout)
+        logout_button.place(relx=0.5, rely=0.8, anchor="center")
         
         return frame
-   
 ####################################################################################################################
 #############################################################################################################################  
     def database_view_profile_employer(self):
@@ -1062,3 +1068,93 @@ class EnglishInterface:
         else:
             self.other_profession_filter.delete(0, "end") 
             self.other_profession_filter.configure(state="disabled")
+
+##########################################################################################################################################################
+##########################################################################################################################################################
+
+    def delete_old_jobs_page(self):
+        frame = ctk.CTkFrame(self.root, width=1000, height=600)
+        frame.pack(fill="both", expand=True)
+        
+        # Header
+        heading = ctk.CTkLabel(frame, text="Delete Job Postings", font=("Arial", 24))
+        heading.place(relx=0.5, rely=0.05, anchor="center")
+
+        # Get posted job IDs from employer's data
+        employer_data = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        job_ids = employer_data.get("posted job ids", [])
+
+        # Create scrollable frame for job listings
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=400)
+        scrollable_frame.place(relx=0.5, rely=0.25, anchor="n")
+
+        # Display each job posting
+        for i, job_id in enumerate(job_ids, 1):
+            # Get job details
+            job_type_city = self.db.collection("Job ids").document(job_id).get().to_dict()
+            if job_type_city:
+                city = job_type_city.get("city")
+                job_type = job_type_city.get("job type")
+                
+                # Create frame for each job
+                job_frame = ctk.CTkFrame(scrollable_frame, width=880, height=100)
+                job_frame.pack(pady=10, fill="x", padx=5)
+                job_frame.pack_propagate(False)
+                
+                # Job info
+                info_label = ctk.CTkLabel(job_frame, 
+                                        text=f"Job #{i}\nCity: {city}\nType: {job_type}",
+                                        font=("Arial", 14))
+                info_label.place(relx=0.1, rely=0.5, anchor="w")
+                
+                # Delete button
+                delete_btn = ctk.CTkButton(job_frame, text="Delete",
+                                         command=lambda id=job_id, type=job_type, city=city: self.delete_job(id, type, city))
+                delete_btn.place(relx=0.9, rely=0.5, anchor="e")
+
+        # Back button
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32,
+                                   command=lambda: self.app.show_page(self.employer_main_dashboard))
+        back_button.place(relx=0.5, rely=0.9, anchor="center")
+        
+        return frame
+
+    def retrive_job_for_job_deletion_page(self, job_id):
+        try:
+            job_type_city = self.db.collection("Job ids").document(job_id).get()
+            
+            if not job_type_city.exists:
+                print(f"No document found for job ID: {job_id}")
+                return None, None
+                
+            job_data = job_type_city.to_dict()
+            if not job_data:
+                print(f"Document exists but no data found for job ID: {job_id}")
+                return None, None
+                
+            city = job_data.get("city")
+            job_type = job_data.get("job type")
+            
+            if not city or not job_type:
+                print(f"Missing required fields for job ID: {job_id}")
+                return None, None
+                
+            return city, job_type
+            
+        except Exception as e:
+            print(f"Error retrieving job data: {str(e)}")
+            return None, None
+
+
+    def delete_job(self, job_id, job_type, city):
+        # Delete from City wise Job data
+        self.db.collection("City wise Job data").document(city).collection(job_type).document(job_id).delete()
+        
+        # Update employer's posted job ids
+        employer_data = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        if "posted job ids" in employer_data:
+            employer_data["posted job ids"].remove(job_id)
+            self.db.collection(self.current_user_type).document(self.current_user).set(employer_data)
+        
+        # Refresh page
+        self.app.show_page(self.delete_old_jobs_page)  
