@@ -10,5 +10,27 @@ firebase_database=firebase_admin.firestore.client()
 
 # dict=firebase_database.collection("user").document("user").get().to_dict()
 # dict['new']=14523
+# firebase_database.collection("city2").document("cname").collection("addresses").document("gfdg").set({
+#   "street": "123 Main St",
+#   "city": "Anytown",
+#   "state": "CA",
+#   "zip": "12345"
+# });
 
-# firebase_database.collection("user").document("user").set(dict)
+# docs=firebase_database.collection("City wise Labour data").document("Karachi").collection("Electrician").get()
+# # Print each document's data
+# print(docs)
+# print(type(docs))
+# for doc in docs:
+#     data = doc.to_dict()
+#     print(data)
+#     print(type(data))
+
+docs = firebase_database.collection("City wise Labour data").document("Karachi").collection("Electrician").get()
+
+for doc in docs:
+    doc_id = doc.id  # Get document identifier
+    data = doc.to_dict()  # Get document data
+    data["email"] = doc.id
+    print(data)
+    print("-" * 50) 

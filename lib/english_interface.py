@@ -178,6 +178,7 @@ class EnglishInterface:
         if password==pass_checker["password"]:
             self.current_user=username
             self.current_user_type=user_type
+            print(self.current_user)
             if(user_type=="Tradesperson"):
                 self.app.show_page(self.labour_main_dashboard)
             else:
@@ -283,8 +284,8 @@ class EnglishInterface:
         search_jobs_button = ctk.CTkButton(frame, text="Search Jobs", command=lambda:self.app.show_page(self.job_show_page))
         search_jobs_button.place(relx=0.5, rely=0.3, anchor="center")
 
-        update_profile_button = ctk.CTkButton(frame, text="Update Profile", command=lambda:self.app.show_page(self.labour_data_entry_page))
-        update_profile_button.place(relx=0.5, rely=0.4, anchor="center")
+        view_profile_button_labour = ctk.CTkButton(frame, text="View Profile", command=lambda:self.app.show_page(self.labour_profile_view_page))
+        view_profile_button_labour.place(relx=0.5, rely=0.4, anchor="center")
 
         # Change password button
         change_password_button = ctk.CTkButton(frame, text="Change Password", command=lambda:self.app.show_page(self.change_password_page))
@@ -292,15 +293,92 @@ class EnglishInterface:
 
         # Logout Button
         logout_button = ctk.CTkButton(frame, text="Logout", command=self.logout)
-        logout_button.place(relx=0.95, rely=0.05, anchor="center")
+        logout_button.place(relx=0.5, rely=0.6, anchor="center")
         
         return frame
     
 ###############################################################################################################################
 ###############################################################################################################################
 
+    def labour_profile_view_page(self):
+        frame = ctk.CTkFrame(self.root, width=1000, height=600)
+        frame.pack(fill="both", expand=True)
+        
+        # Header
+        heading = ctk.CTkLabel(frame, 
+                            text="Labourer Profile", 
+                            font=("Arial", 24))
+        heading.place(relx=0.5, rely=0.03, anchor="center")
+        
+        # Starting positions
+        y_start = 0.15  # Match data entry page
+        y_increment = 0.1
+
+        cnic, profession, phone, experience, dob, city = self.database_view_profile_labour()
+        
+        # CNIC
+        cnic_label = ctk.CTkLabel(frame, text="CNIC:", font=self.label_data_font)
+        cnic_label.place(relx=0.35, rely=y_start, anchor="e")
+        cnic_value = ctk.CTkLabel(frame, text=cnic, font=self.label_data_font)
+        cnic_value.place(relx=0.4, rely=y_start, anchor="w")
+
+        # Profession 
+        profession_label = ctk.CTkLabel(frame, text="Profession:", font=self.label_data_font)
+        profession_label.place(relx=0.35, rely=y_start + y_increment, anchor="e")
+        profession_value = ctk.CTkLabel(frame, text=profession, font=self.label_data_font)
+        profession_value.place(relx=0.4, rely=y_start + y_increment, anchor="w")
+
+        # Date of Birth
+        dob_label = ctk.CTkLabel(frame, text="Date of Birth:", font=self.label_data_font)
+        dob_label.place(relx=0.35, rely=y_start + y_increment*2.5, anchor="e")
+        dob_value = ctk.CTkLabel(frame, text=dob, font=self.label_data_font)
+        dob_value.place(relx=0.4, rely=y_start + y_increment*2.5, anchor="w")
+
+        # Phone
+        phone_label = ctk.CTkLabel(frame, text="Phone:", font=self.label_data_font)
+        phone_label.place(relx=0.35, rely=y_start + y_increment*3.5, anchor="e")
+        phone_value = ctk.CTkLabel(frame, text=phone, font=self.label_data_font)
+        phone_value.place(relx=0.4, rely=y_start + y_increment*3.5, anchor="w")
+
+        # Experience
+        experience_label = ctk.CTkLabel(frame, text="Years of Experience:", font=self.label_data_font) 
+        experience_label.place(relx=0.35, rely=y_start + y_increment*4.5, anchor="e")
+        experience_value = ctk.CTkLabel(frame, text=experience, font=self.label_data_font)
+        experience_value.place(relx=0.4, rely=y_start + y_increment*4.5, anchor="w")
+
+        # City
+        city_label = ctk.CTkLabel(frame, text="City:", font=self.label_data_font)
+        city_label.place(relx=0.35, rely=y_start + y_increment*5.5, anchor="e")
+        city_value = ctk.CTkLabel(frame, text=city, font=self.label_data_font)
+        city_value.place(relx=0.4, rely=y_start + y_increment*5.5, anchor="w")
+
+        # Buttons
+        edit_button = ctk.CTkButton(frame, text="Edit", command=lambda: self.app.show_page(self.labour_data_update_page), width=120, height=35)
+        edit_button.place(relx=0.5, rely=y_start + y_increment*6.5, anchor="center")
+
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=35,
+                                   command=lambda: self.app.show_page(self.labour_main_dashboard))
+        back_button.place(relx=0.35, rely=y_start + y_increment*6.5, anchor="center")
+        
+        return frame
     
-    def labour_data_entry_page(self):
+    def database_view_profile_labour(self):
+        dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+        
+        # Check if fields exist and are not None, otherwise return placeholder text
+        cnic = dict.get("cnic", "Field not filled")
+        profession = dict.get("profession", "Field not filled") 
+        phone = dict.get("phone", "Field not filled")
+        experience = dict.get("experience", "Field not filled")
+        dob = dict.get("dob", "Field not filled")
+        city = dict.get("city", "Field not filled")
+
+        return cnic, profession, phone, experience, dob, city
+
+##########################################################################################################################################
+##########################################################################################################################################
+    
+    def labour_data_update_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
 
@@ -407,8 +485,20 @@ class EnglishInterface:
         dict["dob"]= dob
         dict["city"]= city
         dict["cnic"]=cnic
+        self.db.collection("City wise Labour data").document(dict["city"]).collection(dict['profession']).document(self.current_user).set(
+        {
+            "name":dict["name"],
+            "phone":dict["phone"],
+            "experience":dict["experience"],
+        }
+        )
         self.db.collection(self.current_user_type).document(self.current_user).set(dict)
-        
+        # firebase_database.collection("city2").document("cname").collection("addresses").document("gfdg").set({
+#   "street": "123 Main St",
+#   "city": "Anytown",
+#   "state": "CA",
+#   "zip": "12345"
+# });
 
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
@@ -517,8 +607,11 @@ class EnglishInterface:
         back_button.place(relx=0.5, rely=0.9, anchor="center")
         
         return frame
-#####################################################################################################################
-###############################################################################################################################
+########################################################################################################################################################
+########################################################################################################################################################
+
+##########################################################################################################################################################
+#####################################################################################################################################################
     def employer_main_dashboard(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -536,8 +629,8 @@ class EnglishInterface:
         description.place(relx=0.5, rely=0.1, anchor="center")
         
         # Job Postings Button
-        job_postings_button = ctk.CTkButton(frame, text="View Job Postings", width=200, height=40, )
-        job_postings_button.place(relx=0.5, rely=0.3, anchor="center")
+        available_labour_button_dashboard = ctk.CTkButton(frame, text="Available Tradespersons", width=200, height=40,command=lambda: self.app.show_page(self.available_labour_page))
+        available_labour_button_dashboard.place(relx=0.5, rely=0.2, anchor="center")
         
         # Create Job Posting Button
         create_job_button = ctk.CTkButton(frame, text="Create Job Posting", width=200, height=40, 
@@ -771,8 +864,36 @@ class EnglishInterface:
 
 
 ##########################################################################################################################################################
-###################################################################################################################################################
-    
+##########################################################################################################################################################
+
+    def available_labour_database_get(self,city,profession):
+        try:
+            data = self.db.collection("City wise Labour data").document(city).collection(profession).get()
+            labour_list = list()
+            
+            if not data:  # If no data is returned
+                return [{"name": "No Data", 
+                        "experience": "No workers found", 
+                        "phone": "N/A",
+                        "email": "No results based on current filters"}]
+                
+            for doc in data:
+                dict = doc.to_dict()
+                dict["email"] = doc.id
+                print(dict)
+                labour_list.append(dict)
+                
+            return labour_list if labour_list else [{"name": "No Data", 
+                                                   "experience": "No workers found",
+                                                   "phone": "N/A", 
+                                                   "email": "No results based on current filters"}]
+        except:
+            return [{"name": "No Data",
+                    "experience": "No workers found",
+                    "phone": "N/A",
+                    "email": "No results based on current filters"}]
+
+
     def available_labour_page(self):
         frame = ctk.CTkFrame(self.root, width=1000, height=600)
         frame.pack(fill="both", expand=True)
@@ -784,84 +905,72 @@ class EnglishInterface:
         heading.place(relx=0.5, rely=0.03, anchor="center")
         
         # City Filter
-        city_label = ctk.CTkLabel(frame, text="Filter by City", font=self.label_data_font)
-        city_label.place(relx=0.3, rely=0.1, anchor="e")
-        city_filter = ctk.CTkComboBox(frame, values=["All"] + ["Lahore", "Karachi", "Islamabad", "Faisalabad", "Peshawar", "Multan", "Abbottabad", "Attock", "Bahawalpur", "Bannu", "Chakwal", "Chiniot", "Dera Ghazi Khan", "Ghotki", "Gujranwala", "Gujrat", "Hyderabad", "Jhang", "Jhelum", "Kasur", "Khuzdar", "Kotli", "Larkana", "Mardan", "Mingora", "Mirpur Khas", "Nawabshah", "Okara", "Rahim Yar Khan", "Sargodha", "Sheikhupura", "Sialkot", "Sukkur"])
-        city_filter.place(relx=0.4, rely=0.1, anchor="w")
+        available_labour_city_label = ctk.CTkLabel(frame, text="Filter by City", font=self.label_data_font)
+        available_labour_city_label.place(relx=0.3, rely=0.1, anchor="e")
+        self.available_labour_city_filter = ctk.CTkComboBox(frame, values=cities, width=250)
+        self.available_labour_city_filter.place(relx=0.4, rely=0.1, anchor="w")
+
+        # Profession Filter
+        available_labour_profession_label = ctk.CTkLabel(frame, text="Filter by Profession", font=self.label_data_font)
+        available_labour_profession_label.place(relx=0.3, rely=0.15, anchor="e")
+        self.available_labour_profession_filter = ctk.CTkComboBox(frame, values=professions, width=250, command=self.on_profession_change)
+        self.available_labour_profession_filter.place(relx=0.4, rely=0.15, anchor="w")
+        # Other Profession Entry
+        self.other_profession_filter = ctk.CTkEntry(frame, placeholder_text="Please specify other profession", width=250)
+        self.other_profession_filter.place(relx=0.4, rely=0.2, anchor="w")
+        self.other_profession_filter.configure(state="disabled")
         
         # Scrollable Frame for Labour List
-        scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=500)
-        scrollable_frame.place(relx=0.5, rely=0.2, anchor="n")
+        scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=400)
+        scrollable_frame.place(relx=0.5, rely=0.25, anchor="n")
         
-        # Labour List
-
-        labour_list = [
-            {"name": "Aslam Ahmed", "profession": "Electrician", "phone": "1234567890", "experience": "5 years", "dob": "1990-01-01", "city": "Lahore"},
-            {"name": "Bilal Khan", "profession": "Plumber", "phone": "0987654321", "experience": "3 years", "dob": "1992-02-02", "city": "Karachi"},
-            {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},
-                        {"name": "Catherine Zeta", "profession": "Painter", "phone": "1122334455", "experience": "2 years", "dob": "1995-03-03", "city": "Islamabad"},  
-            # Add more labour data as needed
-        ]
-        
-        # Display Labour
-        def display_labour(city):
+        def display_labour():
+            # Clear previous entries
             for widget in scrollable_frame.winfo_children():
                 widget.destroy()
+                
+            city = self.available_labour_city_filter.get()
+            profession = self.available_labour_profession_filter.get()
             
-            filtered_labour_list = [labour for labour in labour_list if city == "All" or labour["city"] == city]
+            # Get filtered labour list from database
+            labour_list = self.available_labour_database_get(city, profession)
             
-            for index, labour in enumerate(filtered_labour_list):
+            for labour in labour_list:
+                # Create frame for each labour entry
                 labour_frame = ctk.CTkFrame(scrollable_frame, width=880, height=100, border_width=1, border_color="gray")
-                labour_frame.pack(pady=10)
+                labour_frame.pack(pady=10, fill="x", padx=5)
                 
-                labour_name = ctk.CTkLabel(labour_frame, text=f"Name: {labour['name']}", font=("Arial", 18))
-                labour_name.place(relx=0.05, rely=0.2, anchor="w")
+                # Configure frame to maintain size
+                labour_frame.pack_propagate(False)
                 
-                labour_profession = ctk.CTkLabel(labour_frame, text=f"Profession: {labour['profession']}", font=("Arial", 14))
-                labour_profession.place(relx=0.05, rely=0.5, anchor="w")
+                # Display labour information
+                name_label = ctk.CTkLabel(labour_frame, text=f"Name: {labour['name']}", font=("Arial", 16))
+                name_label.place(relx=0.05, rely=0.2, anchor="w")
                 
-                labour_phone = ctk.CTkLabel(labour_frame, text=f"Phone: {labour['phone']}", font=("Arial", 14))
-                labour_phone.place(relx=0.05, rely=0.8, anchor="w")
+                experience_label = ctk.CTkLabel(labour_frame, text=f"Experience: {labour['experience']} years", font=("Arial", 14))
+                experience_label.place(relx=0.05, rely=0.5, anchor="w")
                 
-                labour_experience = ctk.CTkLabel(labour_frame, text=f"Experience: {labour['experience']}", font=("Arial", 12))
-                labour_experience.place(relx=0.5, rely=0.5, anchor="center")
+                phone_label = ctk.CTkLabel(labour_frame, text=f"Phone: {labour['phone']}", font=("Arial", 14))
+                phone_label.place(relx=0.05, rely=0.8, anchor="w")
                 
-                labour_dob = ctk.CTkLabel(labour_frame, text=f"DOB: {labour['dob']}", font=("Arial", 12))
-                labour_dob.place(relx=0.75, rely=0.5, anchor="center")
-        
-        city_filter.set("All")
-        city_filter.bind("<<ComboboxSelected>>", lambda event: display_labour(city_filter.get()))
-        
-        display_labour("All")
+                email_label = ctk.CTkLabel(labour_frame, text=f"Email: {labour['email']}", font=("Arial", 14))
+                email_label.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Add search button
+        search_button = ctk.CTkButton(frame, text="Search", width=120, height=32, 
+                                    command=display_labour)
+        search_button.place(relx=0.7, rely=0.15, anchor="center")
         
         # Back Button
-        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, command=lambda: self.app.show_page(self.app.select_language_page))
+        back_button = ctk.CTkButton(frame, text="Back", width=120, height=32, 
+                                   command=lambda: self.app.show_page(self.employer_main_dashboard))
         back_button.place(relx=0.5, rely=0.9, anchor="center")
         
         return frame
-
-
-###########################################################################################################################################################
-############################################################################################################################################################
-
-
-   
     
-    
-
-    
-
-
-  
-  
-
-
+    def on_profession_change(self, selected_profession):
+        if selected_profession == "Other":
+            self.other_profession_filter.configure(state="normal")
+        else:
+            self.other_profession_filter.delete(0, "end") 
+            self.other_profession_filter.configure(state="disabled")

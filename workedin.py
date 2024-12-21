@@ -62,6 +62,7 @@ def main():
     root.title("Workedin")
     app = App(root)
     
+
     root.mainloop()
 
 if __name__ == "__main__":
