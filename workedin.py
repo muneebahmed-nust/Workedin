@@ -46,7 +46,7 @@ class App:
 
     def show_urdu(self):
         self.urdu = UrduInterface(self)
-        self.show_page(self.urdu.signup_page)
+        self.show_page(self.urdu.login_page)
 
 
 

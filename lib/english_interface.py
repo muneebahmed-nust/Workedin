@@ -74,7 +74,7 @@ class EnglishInterface:
 
         # Sign up button
         signup_button = ctk.CTkButton(frame, text="Sign Up", width=200, height=40, 
-                                    command=lambda: self.run_create_user())
+                                    command=lambda: self.create_user())
         signup_button.place(relx=0.5, rely=0.82, anchor="center")
 
         # Login link
@@ -84,28 +84,14 @@ class EnglishInterface:
 
         return frame
     
-    async def handle_signup(self, email, password, user_type, name):
-        # Run the asynchronous create_user method
-        print(email,password,user_type,name)
+    def handle_signup(self, email, password, user_type, name):
      
-        print("Starting auth")
-    #    auth.create_user(email=email,password=password)
-        print("auth Sucees user created")
-        
-        print("database user name entered")
-   
-       
         self.db.collection(user_type).document(email).set({
                 "name": name, 
                 "password":password,
             })
         
-    def run_create_user(self):
-        # Run the create_user coroutine in an event loop
-        asyncio.run(self.create_user())
-        
-        
-    async def create_user(self):
+    def create_user(self):
         email=self.email_entry.get()
         password=self.password_entry.get()
         confirm_password=self.confirm_password_entry.get()
@@ -127,7 +113,9 @@ class EnglishInterface:
                 messagebox.showerror("Error","Invalid email")
                 return
             else:
-                await self.handle_signup(email,password,user_type,name)
+                self.handle_signup(email,password,user_type,name)
+                self.current_user=email
+                self.current_user_type=user_type
             
             if(user_type=="Tradesperson"):
                 self.app.show_page(self.labour_main_dashboard)
@@ -150,11 +138,11 @@ class EnglishInterface:
         self.user_type_dropdown.place(relx=0.5, rely=0.3, anchor="center")  
 
         # Label and Entry for username
-        username_label = ctk.CTkLabel(frame, text="Username", font=self.heading_label_font)
-        username_label.place(relx=0.5, rely=0.4, anchor="center")  
+        email_label = ctk.CTkLabel(frame, text="Email", font=self.heading_label_font)
+        email_label.place(relx=0.5, rely=0.4, anchor="center")  
 
-        self.username_entry = ctk.CTkEntry(frame, placeholder_text="Enter your username")
-        self.username_entry.place(relx=0.5, rely=0.45, anchor="center") 
+        self.email_entry_login = ctk.CTkEntry(frame, placeholder_text="Enter your username")
+        self.email_entry_login.place(relx=0.5, rely=0.45, anchor="center") 
 
         # Label and Entry for password
         password_label = ctk.CTkLabel(frame, text="Password", font=self.heading_label_font)
@@ -172,29 +160,41 @@ class EnglishInterface:
 
         return frame
     
-    
-    def login_database_retrieve(self,username,user_type):
-       return self.db.collection(user_type).document(username).get()
-          
+    def login_database_retrieve(self, username, user_type):
+        try:
+            return self.db.collection(user_type).document(username).get()
+        except Exception as e:
+            print(f"Database error: {str(e)}")
+            return None
 
     def log_in(self):
-        """Method to handle the login action"""
-        username = self.username_entry.get()
+        email = self.email_entry_login.get()
         password = self.password_entry.get()
         user_type=self.user_type_dropdown.get()
         
-        pass_checker=self.login_database_retrieve(username,user_type).to_dict()
-
-        if password==pass_checker["password"]:
-            self.current_user=username
-            self.current_user_type=user_type
-            print(self.current_user)
-            if(user_type=="Tradesperson"):
-                self.app.show_page(self.labour_main_dashboard)
+        try:
+            # Get user document
+            pass_checker = self.db.collection(user_type).document(email).get().to_dict()
+            
+            # Check if user exists
+            if not pass_checker:
+                messagebox.showerror("Error", "User not found")
+                return
+                
+            # Check password
+            if password == pass_checker.get("password"):
+                self.current_user = email
+                self.current_user_type = user_type 
+                if user_type == "Tradesperson":
+                    self.app.show_page(self.labour_main_dashboard)
+                else:
+                    self.app.show_page(self.employer_main_dashboard)
             else:
-                self.app.show_page(self.employer_main_dashboard)
-        else:
-            messagebox.showerror("Login Failed", "Invalid username or password.")
+                messagebox.showerror("Error", "Incorrect password")
+                
+        except Exception as e:
+            print(f"Login error: {e}")
+            messagebox.showerror("Error", "Login failed")
 
     def logout(self):
             self.current_user=None
@@ -370,18 +370,25 @@ class EnglishInterface:
         return frame
     
     def database_view_profile_labour(self):
-        dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
-        
-        # Check if fields exist and are not None, otherwise return placeholder text
-        cnic = dict.get("cnic", "Field not filled")
-        profession = dict.get("profession", "Field not filled") 
-        phone = dict.get("phone", "Field not filled")
-        experience = dict.get("experience", "Field not filled")
-        dob = dict.get("dob", "Field not filled")
-        city = dict.get("city", "Field not filled")
-
-        return cnic, profession, phone, experience, dob, city
-
+        print(self.current_user)
+        print(self.current_user_type)
+        # if self.current_user == None or self.current_user_type==None:
+        #     messagebox.showerror("Error", "User not logged in")
+        #     return None, None, None, None, None, None
+            
+        try:
+            dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+            return (
+                dict.get("cnic", "N/A"),
+                dict.get("profession", "N/A"), 
+                dict.get("phone", "N/A"),
+                dict.get("experience", "N/A"),
+                dict.get("dob", "N/A"),
+                dict.get("city", "N/A")
+            )
+        except Exception as e:
+            print(f"Error retrieving profile: {e}")
+            return None, None, None, None, None, None
 ##########################################################################################################################################
 ##########################################################################################################################################
     
@@ -917,45 +924,63 @@ class EnglishInterface:
 
  
     def job_database_entry(self,city,job_type,price,job_description):
-        doc_ref = self.db.collection("City wise Job data").document(city).collection(job_type).document()
-        unique_id = doc_ref.id
-        print(unique_id)
+        try:
+            doc_ref = self.db.collection("City wise Job data").document(city).collection(job_type).document()
+            unique_id = doc_ref.id
 
-        employer_data = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
-        if not employer_data.get("posted job ids"):
-            employer_data["posted job ids"]=[unique_id]
-        else:
-            employer_data["posted job ids"].append(unique_id)
-        self.db.collection(self.current_user_type).document(self.current_user).set(employer_data)
+            employer_data = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
+            
+            # Check if employer profile is complete
+            if not all([employer_data.get("phone"), employer_data.get("address"), employer_data.get("city")]):
+                messagebox.showerror("Error", "Please complete your profile before posting a job")
+                self.app.show_page(self.employer_profile_update_page)
+                return False
 
-        self.db.collection("Job ids").document(unique_id).set({
-            "city": city,
-            "job type": job_type,
-        })
+            if not employer_data.get("posted job ids"):
+                employer_data["posted job ids"]=[unique_id]
+            else:
+                employer_data["posted job ids"].append(unique_id)
+            
+            self.db.collection(self.current_user_type).document(self.current_user).set(employer_data)
 
-        doc_ref.set({
-            "name": employer_data["name"],
-            "phone": employer_data["phone"],
-            "address": employer_data["address"],
-            "description": job_description,
-            "job price": price,
-               # Store ID in document itself
-        })
+            self.db.collection("Job ids").document(unique_id).set({
+                "city": city,
+                "job type": job_type,
+            })
+
+            doc_ref.set({
+                "name": employer_data["name"],
+                "phone": employer_data["phone"],
+                "address": employer_data["address"],
+                "description": job_description,
+                "job price": price,
+            })
+            return True
+
+        except Exception as e:
+            print(f"Error posting job: {str(e)}")
+            messagebox.showerror("Error", "Failed to post job. Please try again.")
+            return False
 
     def job_submission(self):
-        city = self.city_box_job_sub.get()
-        job_type = self.job_type_box_sub.get()
-        if job_type == "Other":
-            job_type = self.other_job_entry.get()
-        price = self.job_price_entry.get()
-        job_description = self.job_description_entry.get("0.0", "end-1c")
+        try:
+            city = self.city_box_job_sub.get()
+            job_type = self.job_type_box_sub.get()
+            if job_type == "Other":
+                job_type = self.other_job_entry.get()
+            price = self.job_price_entry.get()
+            job_description = self.job_description_entry.get("0.0", "end-1c")
 
-        if(is_empty(price) or is_empty(job_description)):
-            messagebox.showerror("Error","Please fill out all fields")
-            return
-        else:
-            self.job_database_entry(city,job_type,price,job_description)
-            self.app.show_page(self.employer_main_dashboard)
+            if(is_empty(price) or is_empty(job_description)):
+                messagebox.showerror("Error","Please fill out all fields")
+                return
+            else:
+                if self.job_database_entry(city,job_type,price,job_description):
+                    self.app.show_page(self.employer_main_dashboard)
+
+        except Exception as e:
+            print(f"Error in job submission: {str(e)}")
+            messagebox.showerror("Error", "Job submission failed. Please try again.")
 
 ##########################################################################################################################################################
 ##########################################################################################################################################################
