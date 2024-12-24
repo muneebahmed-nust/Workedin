@@ -12,8 +12,6 @@ class App:
  
     def __init__(self, root):
         self.root = root
-        self.x_axis=self.root.winfo_screenwidth()/2
-        self.y_axis=self.root.winfo_screenheight()/2
         self.current_frame = self.select_language_page()
         self.label_data_font=("Arial", 16)
         self.heading_label_font=("Arial",24)

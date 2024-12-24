@@ -4,7 +4,6 @@ import utils
 from lib.backend_functions import *
 from lib.authentication_firebase import *
 from firebase_admin import auth
-import asyncio
 from tkcalendar import Calendar
 from lib.data_resource import *
 from PIL import Image
@@ -245,6 +244,7 @@ class EnglishInterface:
         
         return frame
     
+    # function used for change password page
     def navigate_dashboard(self):
             if self.current_user_type == "Tradesperson":
                 self.app.show_page(self.labour_main_dashboard)
@@ -372,9 +372,9 @@ class EnglishInterface:
     def database_view_profile_labour(self):
         print(self.current_user)
         print(self.current_user_type)
-        # if self.current_user == None or self.current_user_type==None:
-        #     messagebox.showerror("Error", "User not logged in")
-        #     return None, None, None, None, None, None
+        if self.current_user == None or self.current_user_type==None:
+            messagebox.showerror("Error", "User not logged in")
+            return None, None, None, None, None, None
             
         try:
             dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
@@ -507,12 +507,6 @@ class EnglishInterface:
         }
         )
         self.db.collection(self.current_user_type).document(self.current_user).set(dict)
-        # firebase_database.collection("city2").document("cname").collection("addresses").document("gfdg").set({
-#   "street": "123 Main St",
-#   "city": "Anytown",
-#   "state": "CA",
-#   "zip": "12345"
-# });
 
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
@@ -540,12 +534,7 @@ class EnglishInterface:
 
 ###############################################################################################################################
 ###############################################################################################################################
-#docs=firebase_database.collection("City wise Job data").document("Karachi").collection("Carpenter").get()
 
-# for doc in docs:
-#   print(doc)  # Get document identifier
-#   data = doc.to_dict()  # Get
-#   print(data)
     def database_available_jobs_get(self,city,job_title):
         try:
             docs = self.db.collection("City wise Job data").document(city).collection(job_title).get()
@@ -1032,12 +1021,12 @@ class EnglishInterface:
         # Profession Filter
         available_labour_profession_label = ctk.CTkLabel(frame, text="Filter by Profession", font=self.label_data_font)
         available_labour_profession_label.place(relx=0.3, rely=0.15, anchor="e")
-        self.available_labour_profession_filter = ctk.CTkComboBox(frame, values=professions, width=250, command=self.on_profession_change)
+        self.available_labour_profession_filter = ctk.CTkComboBox(frame, values=professions, width=250, command=self.other_profession_filter)
         self.available_labour_profession_filter.place(relx=0.4, rely=0.15, anchor="w")
         # Other Profession Entry
-        self.other_profession_filter = ctk.CTkEntry(frame, placeholder_text="Please specify other profession", width=250)
-        self.other_profession_filter.place(relx=0.4, rely=0.2, anchor="w")
-        self.other_profession_filter.configure(state="disabled")
+        self.other_profession_entry = ctk.CTkEntry(frame, placeholder_text="Please specify other profession", width=250)
+        self.other_profession_entry.place(relx=0.4, rely=0.2, anchor="w")
+        self.other_profession_entry.configure(state="disabled")
         
         # Scrollable Frame for Labour List
         scrollable_frame = ctk.CTkScrollableFrame(frame, width=900, height=400)
@@ -1050,7 +1039,8 @@ class EnglishInterface:
                 
             city = self.available_labour_city_filter.get()
             profession = self.available_labour_profession_filter.get()
-            
+            if profession == "Other":
+                profession = self.other_profession_entry.get()
             # Get filtered labour list from database
             labour_list = self.available_labour_database_get(city, profession)
             
@@ -1087,12 +1077,12 @@ class EnglishInterface:
         
         return frame
     
-    def on_profession_change(self, selected_profession):
+    def other_profession_filter(self, selected_profession):
         if selected_profession == "Other":
-            self.other_profession_filter.configure(state="normal")
+            self.other_profession_entry.configure(state="normal")
         else:
-            self.other_profession_filter.delete(0, "end") 
-            self.other_profession_filter.configure(state="disabled")
+            self.other_profession_entry.delete(0, "end") 
+            self.other_profession_entry.configure(state="disabled")
 
 ##########################################################################################################################################################
 ##########################################################################################################################################################

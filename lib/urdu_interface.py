@@ -4,7 +4,6 @@ import utils
 from lib.backend_functions import *
 from lib.authentication_firebase import *
 from firebase_admin import auth
-import asyncio
 from tkcalendar import Calendar
 from lib.data_resource import *
 from PIL import Image
