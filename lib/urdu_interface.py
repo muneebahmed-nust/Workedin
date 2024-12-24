@@ -90,36 +90,7 @@ class UrduInterface:
                 "password":password,
             })
         
-    
-        
-    # def create_user(self):
-    #     email=self.email_entry.get()
-    #     password=self.password_entry.get()
-    #     confirm_password=self.confirm_password_entry.get()
-    #     user_type=self.user_type_box.get()
-    #     name=self.name_entry_box.get()
 
-        
-    #     if(is_empty(email) or is_empty(password) or is_empty(confirm_password) or is_empty( user_type)  or is_empty(name)):
-    #         messagebox.showerror("ان پٹ کی خرابی", "براہ کرم تمام فیلڈز کو پُر کریں")
-    #         return
-    #     else:    
-    #         if (not_letter(name)):
-    #             messagebox.showerror("خرابی", "نام میں صرف حروف ہونے چاہئیں")
-    #             return
-    #         if (password!=confirm_password):
-    #             messagebox.showerror("خرابی", "پاس ورڈ اور تصدیق شدہ پاس ورڈ میل نہیں کھاتے")
-    #             return
-    #         if(is_invalid_email(email)):
-    #             messagebox.showerror("خرابی", "غلط ای میل")
-    #             return
-    #         else:
-    #             self.handle_signup(email,password,user_type,name)
-            
-    #         if(user_type=="Tradesperson"):
-    #             self.app.show_page(self.labour_main_dashboard)
-    #         else:
-    #             self.app.show_page(self.employer_main_dashboard)
     def create_user(self):
         email=self.email_entry.get()
         password=self.password_entry.get()
@@ -401,9 +372,9 @@ class UrduInterface:
     def database_view_profile_labour(self):
         print(self.current_user)
         print(self.current_user_type)
-        # if self.current_user == None or self.current_user_type==None:
-        #     messagebox.showerror("Error", "User not logged in")
-        #     return None, None, None, None, None, None
+        if self.current_user == None or self.current_user_type==None:
+            messagebox.showerror("Error", "User not logged in")
+            return None, None, None, None, None, None
             
         try:
             dict = self.db.collection(self.current_user_type).document(self.current_user).get().to_dict()
@@ -537,12 +508,6 @@ class UrduInterface:
         }
         )
         self.db.collection(self.current_user_type).document(self.current_user).set(dict)
-        # firebase_database.collection("city2").document("cname").collection("addresses").document("gfdg").set({
-#   "street": "123 Main St",
-#   "city": "Anytown",
-#   "state": "CA",
-#   "zip": "12345"
-# });
 
     def labour_entry(self):
         cnic=self.cnic_entry_box.get()
@@ -570,12 +535,7 @@ class UrduInterface:
 
 ###############################################################################################################################
 ###############################################################################################################################
-#docs=firebase_database.collection("City wise Job data").document("Karachi").collection("Carpenter").get()
 
-# for doc in docs:
-#   print(doc)  # Get document identifier
-#   data = doc.to_dict()  # Get
-#   print(data)
     def database_available_jobs_get(self,city,job_title):
         try:
             docs = self.db.collection("City wise Job data").document(city).collection(job_title).get()
