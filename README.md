@@ -81,5 +81,5 @@ This application bridges the gap between **employers** and **tradespersons/labor
 This project is open-source and available under the **MIT License**.
 
 ---
-✨ **Developed by Sheikh Muneeb Ahmed** | First Semester ICT Course Project | NUST 🏫
+✨ **Developed by [Sheikh Muneeb Ahmed](https://github.com/muneebahmed-nust) and [Emaan Ahmed](https://github.com/emaan19)** | First Semester ICT Course Project | NUST 🏫
 
